@@ -1,0 +1,30 @@
+{
+  "name": "web-project-elite-threads",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cropperjs": "^1.6.2",
+    "csurf": "^1.10.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "joi": "^17.13.3",
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.3",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.16",
+    "nodemon": "^3.1.7",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "sharp": "^0.33.5",
+    "uuid": "^11.0.3"
+  }
+}

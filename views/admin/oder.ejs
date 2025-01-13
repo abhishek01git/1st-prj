@@ -1,0 +1,73 @@
+<%- include("../../views/partials/admin/header") %>
+
+<main class="content-main" style="margin-left: 15%;">
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Order List</h2>
+        </div>
+    
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% orders.forEach(order => { %>
+                                <tr>
+                                    <td><%= order.orderId %></td>
+                                    <td><%= order.userId.name %></td>
+                                    <td><%= order.userId.email %></td>
+                                    <td>$<%= order.totalAmount.toFixed(2) %></td>
+                                    <td><span class="badge rounded-pill alert-warning"><%= order.status %></span></td>
+                                    <td><%= order.createdAt.toDateString() %></td>
+                                    <td class="text-end">
+                                        <a href="/admin/orders/<%= order._id %>" class="btn btn-sm btn-primary">Details</a>
+                                        
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+  
+    
+</main>
+            <!-- content-main end// -->
+            <footer class="main-footer font-xs">
+                <div class="row pb-30 pt-15">
+                    <div class="col-sm-6">
+                        <script>
+                            document.write(new Date().getFullYear());
+                        </script>
+                        &copy; Nest - HTML Ecommerce Template .
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end">All rights reserved</div>
+                    </div>
+                </div>
+            </footer>
+        </main>
+        <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+        <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+        <script src="assets/js/vendors/select2.min.js"></script>
+        <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+        <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+        <!-- Main Script -->
+        <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    </body>
+</html>
+

@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        img {
+            max-width: 100px;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #e50c66;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .address-table th {
+            background-color: white;
+            color: black;
+        }
+
+        .review-section {
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .rating-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Order Details</h1>
+
+        <% if (statusMessage) { %>
+            <p style="text-align: center; color: #007BFF;"> Order is:<%= order.status%></p>
+        <% } %>
+
+        <table class="order-details">
+            <tr>
+                <th>Order ID</th>
+                <td><%= order._id %></td>
+            </tr>
+            <tr>
+                <th>Order Status</th>
+                <td><%= order.status%></td>
+            </tr>
+            <tr>
+                <th>Order Date</th>
+                <td><%= order.createdAt.toLocaleDateString() %></td>
+            </tr>
+            <tr>
+                <th>Payment Status</th>
+                <td><%= order.paymentStatus %></td>
+            </tr>
+            <tr>
+                <th>Total Amount</th>
+                <td>$<%= order.totalAmount %></td>
+            </tr>
+        </table>
+
+        
+
+        <h2>Address</h2>
+        <table class="address-table">
+            <tr>
+                <th>Name</th>
+                <td><%= order.address.name %></td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td><%= order.address.state %></td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td><%= order.address.city %></td>
+            </tr>
+            <tr>
+                <th>Place</th>
+                <td><%= order.address.landmark %></td>
+            </tr>
+            <tr>
+                <th>Pincode</th>
+                <td><%= order.address.pincode %></td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td><%= order.address.phone %></td>
+            </tr>
+        </table>
+
+        <h2>Items in Order</h2>
+        <table class="order-items">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.items.forEach(item => { %>
+                    <tr>
+                        <td>
+                            <img src="<%= item.image %>" alt="<%= item.productId.name %>">
+                        </td>
+                        <td><%= item.size %></td>
+                        <td><%= item.quantity %></td>
+                        <td>$<%= item.price.toFixed(2) %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <h2>Reviews</h2>
+        <% order.items.forEach(item => { %>
+            <div class="review-section">
+                <p><strong><%= item.productId.name %></strong></p>
+                <% if (order.status === 'Delivered') { %>
+                    <form action="/review/<%= order.userId %>" method="POST">
+                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                        <label for="rating-<%= item.productId._id %>">Rating:</label>
+                        <select name="rating" id="rating-<%= item.productId._id %>" class="rating-select">
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                        <label for="comment-<%= item.productId._id %>">Comment:</label>
+                        <textarea name="comment" id="comment-<%= item.productId._id %>" rows="3" placeholder="Write your review here..."></textarea>
+                        <button type="submit">Submit Review</button>
+                    </form>
+                <% } else { %>
+                    <p style="color: #555;">You can review this product after it's delivered.</p>
+                <% } %>
+            </div>
+        <% }); %>
+        
+
+        <hr>
+
+        <% if (order.status !== 'Delivered' && order.status !== 'canceled') { %>
+            <form action="/cancel-order/<%= order._id %>" method="POST">
+                <button type="submit" id="cancel-button">Cancel Order</button>
+            </form>
+            <!-- Add a section for product-wise cancellation -->
+            <h3>Cancel Specific Products</h3>
+            <% order.items.forEach(item => { %>
+                <form action="/cancel-order/<%= order._id %>" method="POST">
+                    <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                    <input type="hidden" name="size" value="<%= item.size %>">
+                    <label for="quantity">Quantity to Return/Cancel:</label>
+                    <input type="number" name="quantity" min="1" max="<%= item.quantity %>" value="<%= item.quantity %>">
+                    <button type="submit" id="cancel-product-button">Cancel <%= item.productId.name %> (Size: <%= item.size %>)</button>
+                </form>
+            <% }) %>
+        <% } else if (order.status === 'canceled') { %>
+            <p style="text-align: center; color: #555;">Order has been canceled.</p>
+        <% } else { %>
+            <p style="text-align: center; color: #555;">Order successfully delivered.</p>
+        <% } %>
+        
+        
+    </div>
+
+</body>
+</html>

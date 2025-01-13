@@ -1,0 +1,215 @@
+<%- include("../../views/partials/user/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User Address</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .account__wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .account__content {
+            width: 100%;
+            max-width: 700px;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            color: #e50c66;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        .form-control {
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            border-color: #046963;
+            outline: none;
+            box-shadow: 0 0 10px rgba(4, 105, 99, 0.2);
+        }
+        .text-danger {
+            color: red;
+            font-size: 0.875em;
+        }
+        .btn-primary {
+    background-color: #e50c66;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background-color: #010912;
+}
+    </style>
+</head>
+<body>
+    
+
+    <div class="account__wrapper">
+        <div class="account__content">
+            <h3 class="mt-3">Create User Address</h3>
+            <form id="addressForm" method="post" action="/add-address">
+                <div class="form-group">
+                    <label for="addressType">Address Type:</label>
+                    <input type="text" class="form-control" id="addressType" name="addressType" required>
+                    <div id="addressType-error" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                    <div id="name-error" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <input type="text" class="form-control" id="city" name="city" required>
+                    <div id="city-error" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="landMark">Landmark:</label>
+                    <input type="text" class="form-control" id="landMark" name="landmark" required>
+                    <div id="landMark-error" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="state">State:</label>
+                    <input type="text" class="form-control" id="state" name="state" required>
+                    <div id="state-error" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="pincode">Pincode:</label>
+                    <input type="text" class="form-control" id="pincode" name="pincode" required>
+                    <div id="pincode-error" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" class="form-control" id="phone" name="phone" required>
+                    <div id="phone-error" class="text-danger"></div>
+                </div>
+               
+                <button type="submit" id="submitButton" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('addressForm').addEventListener('submit', function(event) {
+            if (!validateForm()) {
+                event.preventDefault();
+            }
+        });
+
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = ["addressType", "name", "city", "landMark", "state", "pincode", "phone"];
+            requiredFields.forEach(function(field) {
+                const input = document.getElementById(field);
+                const inputValue = input.value.trim();
+                const errorElement = document.getElementById(field + '-error');
+
+                if (inputValue === "") {
+                    if (!errorElement) {
+                        const errorMessage = "This field is required.";
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = "text-danger";
+                        errorDiv.textContent = errorMessage;
+                        errorDiv.id = field + '-error';
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                    isValid = false;
+                } else {
+                    if (errorElement) {
+                        errorElement.remove();
+                    }
+                }
+            });
+
+            const addressType = document.getElementById('addressType').value;
+            const name = document.getElementById('name').value;
+            const city = document.getElementById('city').value;
+            const landMark = document.getElementById('landMark').value;
+            const state = document.getElementById('state').value;
+            const pincode = document.getElementById('pincode').value;
+            const phone = document.getElementById('phone').value;
+            const altPhone = document.getElementById('altPhone').value;
+            const namePattern = /^[A-Za-z\s]+$/;
+            const pincodePattern = /^\d{6}$/;
+            const phonePattern = /^\d{10}$/;
+            if (!namePattern.test(name)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Name should contain alphabets only.',
+                    icon: 'error'
+                });
+                isValid = false;
+            }
+            if (!namePattern.test(city)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'City should contain alphabets only.',
+                    icon: 'error'
+                });
+                isValid = false;
+            }
+            if (!namePattern.test(landMark)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Landmark should contain alphabets only.',
+                    icon: 'error'
+                });
+                isValid = false;
+            }
+            if (!namePattern.test(state)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'State should contain alphabets only.',
+                    icon: 'error'
+                });
+                isValid = false;
+            }
+            if (!pincodePattern.test(pincode)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Pincode should be a 6-digit number.',
+                    icon: 'error'
+                });
+                isValid = false;
+            }
+            if (!phonePattern.test(phone)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Phone number should be a 10-digit number.',
+                    icon: 'error'
+                });
+                isValid = false;
+            }
+            
+            
+            return isValid;
+        }
+    </script>
+
+<%- include("../../views/partials/user/footer") %>
+</body>
+</html>
