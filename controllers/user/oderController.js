@@ -22,22 +22,22 @@ const renderCheckoutPage = async (req, res) => {
     
 
 
-  for(let item of cart.items){
-    const product=item.productId;
-    const size=item.size;
-    const quantity=item.quantity;
+  // for(let item of cart.items){
+  //   const product=item.productId;
+  //   const size=item.size;
+  //   const quantity=item.quantity;
 
-    const selectedVariant= product.variant.find((v)=>v.size===size);
-    if(!selectedVariant){
-      return res.status(404).json({success:false,error:`Variant with size ${size} not found for product ${product.productName}.`});
-    }
-    if(quantity>selectedVariant.quantity){
-      return res.status(400).json({
-        sucess:false,error:`Only ${selectedVariant.quantity} units are available for size ${size} of product ${product.productName}`,
-        availableQuantity:selectedVariant.quantity
-      })
-    }
-  }
+  //   const selectedVariant= product.variant.find((v)=>v.size===size);
+  //   if(!selectedVariant){
+  //     return res.status(404).json({success:false,error:`Variant with size ${size} not found for product ${product.productName}.`});
+  //   }
+  //   if(quantity>selectedVariant.quantity){
+  //     return res.status(400).json({
+  //       success:false,error:`Only ${selectedVariant.quantity} units are available for size ${size} of product ${product.productName}`,
+  //       availableQuantity:selectedVariant.quantity
+  //     })
+  //   }
+  // }
 
 
     
@@ -182,29 +182,40 @@ const placeOrder = async (req, res) => {
         });
       }
     }
+    
+    const grandTotal = cart.items.reduce((sum, item) => {
+      const price = item.price; 
+      const quantity = item.quantity ? item.quantity : 0; 
+      console.log('Item Price:', price, 'Quantity:', quantity); 
+      return sum + (quantity * price);
+    }, 0);
 
 
 
 
-   
+  
     const order = new Order({
+
       userId: req.user._id,
       address: selectedAddress, 
-      paymentMethod,
-      cartId,
+      paymentMethod,  
       items: cart.items,
+      totalAmount:grandTotal,
       status: 'Pending'
     });
 
     await order.save();
 
     
-    await Cart.findByIdAndUpdate(cartId, { items: [] });
+    await Cart.updateOne(
+      {userId:req.user._id},
+      {$set:{items:[]}}
+    )
 
     
     await updateProductStock(cart.items);
 
-    res.redirect(`order-success?orderId=${order._id}`);
+    res.json({success: true, orderId:order._id});
   } catch (error) {
     console.error('Error placing the order:', error);
     res.status(500).json({ success: false, message: 'Error placing the order: ' + error.message });

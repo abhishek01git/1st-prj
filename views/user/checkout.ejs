@@ -696,7 +696,7 @@ document.getElementById('checkoutButton').addEventListener('click', async () => 
         text: 'Your order has been placed successfully!',
         confirmButtonText: 'Go to Orders',
       }).then(() => {
-        window.location.href = `/order-success/${result.orderId}`;
+        window.location.href = `/order-success?orderId=${result.orderId}`;
       });
   } else {
     console.log('skfjdslf8888888888888888888888sjdlk')

@@ -6,20 +6,23 @@ const User = require("../../models/userSchema");
 const addToCart = async (req, res) => {
   const { productId, size, quantity } = req.body;
   console.log("this is data ", req.body);
+
   try {
     const userId = req.user.id;
     console.log("ertyui", userId);
+
+    // Check if user session is available
     if (!userId) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: "User session not found.",
-          redirectURL: "/login",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "User session not found.",
+        redirectURL: "/login",
+      });
     }
+
+    // Fetch the product and its stock information
     const product = await Product.findById(productId).select(
-      "productName salePrice productImage quantity variant"
+      "productName salePrice productImage variant"
     );
 
     if (!product) {
@@ -28,50 +31,59 @@ const addToCart = async (req, res) => {
         .json({ success: false, message: "Product not found" });
     }
 
-    // if (
-    //   !product.productName ||
-    //   !product.salePrice ||
-    //   !product.productImage.length
-    // ) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Incomplete product details found.",
-    //   });
-    // }
-
-    if (!product.variant.some((variant) => variant.size === size)) {
+    // Check if the selected size is available
+    const variant = product.variant.find((v) => v.size === size);
+    if (!variant) {
       return res.status(400).json({
         success: false,
         message: `Size ${size} is not available for this product.`,
       });
     }
 
+    // Fetch user's cart or create a new one
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId });
     }
 
+    // Find the index of the existing item in the cart
     const existingItemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId && item.size === size
     );
+
     if (existingItemIndex !== -1) {
-      if (
-        product.quantity <
-        cart.items[existingItemIndex].quantity + quantity
-      ) {
+      // If the item exists, calculate the new total quantity
+      const newQuantity = cart.items[existingItemIndex].quantity + quantity;
+
+      if (variant.quantity < newQuantity) {
+        // Remove the item from the cart if the quantity exceeds stock
+        cart.items.splice(existingItemIndex, 1);
+        cart.totalAmount = cart.items.reduce(
+          (total, item) => total + item.quantity * item.price,
+          0
+        );
+
+        await cart.save();
+
         return res.status(400).json({
           success: false,
-          message: "Insufficient stock available for this product.",
+          message: `Insufficient stock. Only ${variant.quantity} items available. The item has been removed from your cart.`,
+          cart,
         });
       }
-      cart.items[existingItemIndex].quantity += quantity;
+
+      // Update the quantity of the existing item
+      cart.items[existingItemIndex].quantity = newQuantity;
     } else {
-      if (product.quantity < quantity) {
+      // If the item is new to the cart
+      if (variant.quantity < quantity) {
         return res.status(400).json({
           success: false,
-          message: "Insufficient stock available for this product.",
+          message: `Insufficient stock. Only ${variant.quantity} items available.`,
         });
       }
+
+      // Add the new item to the cart
       cart.items.push({
         productId,
         size,
@@ -82,23 +94,30 @@ const addToCart = async (req, res) => {
       });
     }
 
+    // Recalculate the total cart amount
     cart.totalAmount = cart.items.reduce(
       (total, item) => total + item.quantity * item.price,
       0
     );
+
+    // Save the updated cart
     await cart.save();
 
     res.status(200).json({
       success: true,
-      message: "Item added to cart successfully",
+      message: "Item added to cart successfully.",
       cart,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to add item to cart", error });
+    console.error("Error adding to cart:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to add item to cart.",
+      error,
+    });
   }
 };
+
 
 
 

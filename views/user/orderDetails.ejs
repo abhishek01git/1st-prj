@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +51,6 @@
         }
 
         button {
-            width: 100%;
             padding: 10px;
             background-color: #e50c66;
             color: #fff;
@@ -60,6 +58,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 5px;
         }
 
         button:disabled {
@@ -90,6 +89,27 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .item-info img {
+            margin-right: 10px;
+        }
+
+        .cancel-button {
+            margin-left: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -98,7 +118,7 @@
         <h1>Order Details</h1>
 
         <% if (statusMessage) { %>
-            <p style="text-align: center; color: #007BFF;"> Order is:<%= order.status%></p>
+            <p style="text-align: center; color: #007BFF;"> Order is: <%= order.status %></p>
         <% } %>
 
         <table class="order-details">
@@ -108,7 +128,7 @@
             </tr>
             <tr>
                 <th>Order Status</th>
-                <td><%= order.status%></td>
+                <td><%= order.status %></td>
             </tr>
             <tr>
                 <th>Order Date</th>
@@ -123,8 +143,6 @@
                 <td>$<%= order.totalAmount %></td>
             </tr>
         </table>
-
-        
 
         <h2>Address</h2>
         <table class="address-table">
@@ -155,28 +173,41 @@
         </table>
 
         <h2>Items in Order</h2>
-        <table class="order-items">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Size</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% order.items.forEach(item => { %>
-                    <tr>
-                        <td>
-                            <img src="<%= item.image %>" alt="<%= item.productId.name %>">
-                        </td>
-                        <td><%= item.size %></td>
-                        <td><%= item.quantity %></td>
-                        <td>$<%= item.price.toFixed(2) %></td>
-                    </tr>
-                <% }); %>
-            </tbody>
-        </table>
+<div class="order-items">
+    <% order.items.forEach(item => { %>
+        <div class="item-row">
+            <div class="item-info">
+                <img src="<%= item.image %>" alt="<%= item.productId.name %>">
+                <div>
+                    <p><strong><%= item.productId.name %> (Size: <%= item.size %>)</strong></p>
+                    <p>Quantity: <%= item.quantity %> | Price: $<%= item.price.toFixed(2) %></p>
+                </div>
+            </div>
+            <% if (order.status === 'canceled') { %>
+                <p style="color: red;"><strong>Canceled</strong></p>
+            <% } else if (order.status === 'Delivered') { %>
+                <p style="color: green;"><strong>Delivered</strong></p>
+            <% } else if (item.cancelStatus !== 'Cancelled' && item.cancelStatus !== 'Delivered') { %>
+                <form action="/cancel-order/<%= order._id %>" method="POST" class="cancel-button">
+                    <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                    <input type="hidden" name="size" value="<%= item.size %>">
+                    <input 
+                        type="number" 
+                        name="quantity" 
+                        min="1" 
+                        max="<%= item.quantity %>" 
+                        value="<%= item.quantity %>" 
+                        style="display: none;">
+                    <button type="submit">Cancel</button>
+                </form>
+            <% } else { %>
+                <p style="color: red;"><strong>Canceled</strong></p>
+            <% } %>
+            
+        </div>
+    <% }); %>
+</div>
+
 
         <h2>Reviews</h2>
         <% order.items.forEach(item => { %>
@@ -202,7 +233,6 @@
                 <% } %>
             </div>
         <% }); %>
-        
 
         <hr>
 
@@ -210,25 +240,20 @@
             <form action="/cancel-order/<%= order._id %>" method="POST">
                 <button type="submit" id="cancel-button">Cancel Order</button>
             </form>
-            <!-- Add a section for product-wise cancellation -->
-            <h3>Cancel Specific Products</h3>
-            <% order.items.forEach(item => { %>
-                <form action="/cancel-order/<%= order._id %>" method="POST">
-                    <input type="hidden" name="productId" value="<%= item.productId._id %>">
-                    <input type="hidden" name="size" value="<%= item.size %>">
-                    <label for="quantity">Quantity to Return/Cancel:</label>
-                    <input type="number" name="quantity" min="1" max="<%= item.quantity %>" value="<%= item.quantity %>">
-                    <button type="submit" id="cancel-product-button">Cancel <%= item.productId.name %> (Size: <%= item.size %>)</button>
-                </form>
-            <% }) %>
         <% } else if (order.status === 'canceled') { %>
             <p style="text-align: center; color: #555;">Order has been canceled.</p>
         <% } else { %>
             <p style="text-align: center; color: #555;">Order successfully delivered.</p>
         <% } %>
-        
-        
+
     </div>
 
 </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+</script>
+

@@ -1,3 +1,4 @@
+const { types, string } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { v4: uuidv4 } = require('uuid');
@@ -52,11 +53,7 @@ const orderSchema = new Schema({
     type: Number, 
     required: true 
   },
-  cartId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Cart',
-    required: true
-  },
+
   items: [{
     productId: {
       type: Schema.Types.ObjectId,
@@ -82,6 +79,11 @@ const orderSchema = new Schema({
     image: { 
       type: String, 
       required: true 
+    },
+    cancelStatus:{
+      type:String,
+      enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'], 
+      default: 'Pending' 
     }
   }],
   paymentStatus: { 
@@ -105,7 +107,8 @@ const orderSchema = new Schema({
   date: { 
     type: Date, 
     default: Date.now 
-  }
+  },
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

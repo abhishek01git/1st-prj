@@ -91,8 +91,8 @@ res.status(200),send("Order marked as delivered successfully")
 const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const productId = req.body.productId; // Get the specific product ID to cancel/return
-    const size = req.body.size; // Size for cancellation if applicable
+    const productId = req.body.productId; // Specific product ID to cancel
+    const size = req.body.size; // Applicable size
     const quantity = req.body.quantity; // Quantity to cancel
 
     const order = await Order.findById(orderId).populate("items.productId");
@@ -101,6 +101,17 @@ const cancelOrder = async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
+    // Check if the order is delivered
+    if (order.status === "Delivered") {
+      return res.render("orderDetails", { 
+        order, 
+        statusMessage: "Order has already been delivered and cannot be canceled", 
+        canCancel: false, 
+        address: order.address 
+      });
+    }
+
+    // If the order has already been canceled, show the details with a message
     if (order.status === "canceled") {
       return res.render("orderDetails", { 
         order, 
@@ -112,9 +123,9 @@ const cancelOrder = async (req, res) => {
 
     // If no specific product is provided, cancel the entire order
     if (!productId) {
-      order.status = "canceled";
+      order.status = "canceled"; // Mark the order as canceled
       await order.save();
-      
+
       // Update stock for all items in the order
       for (const item of order.items) {
         const product = await Product.findById(item.productId._id);
@@ -122,24 +133,30 @@ const cancelOrder = async (req, res) => {
         if (product) {
           const variant = product.variant.find((v) => v.size === item.size);
           if (variant) {
-            variant.quantity += item.quantity;
+            variant.quantity += item.quantity; // Revert the quantity back to stock
           } else {
-            product.stock += item.quantity;
+            product.stock += item.quantity; // Revert stock if no variant
           }
           await product.save();
         }
       }
-      return res.redirect("/order-details/" + orderId + "?statusMessage=Order canceled successfully");
+
+      return res.redirect(
+        `/order-details/${orderId}?statusMessage=Order canceled successfully`
+      );
     }
 
-    // Handle cancellation/return of a specific product
-    const itemToCancel = order.items.find(item => item.productId._id.toString() === productId && item.size === size);
+    // Handle cancellation of a specific product
+    const itemToCancel = order.items.find(
+      (item) =>
+        item.productId._id.toString() === productId && item.size === size
+    );
 
     if (!itemToCancel) {
       return res.status(404).send("Product not found in order");
     }
 
-    // Adjust the quantity if the user is returning a specific quantity
+    // Adjust the quantity if the user is canceling a specific quantity
     if (itemToCancel.quantity < quantity) {
       return res.status(400).send("Quantity to cancel exceeds the order quantity");
     }
@@ -147,14 +164,14 @@ const cancelOrder = async (req, res) => {
     // Decrease the quantity of the item
     itemToCancel.quantity -= quantity;
 
+    // If quantity becomes 0, mark the item as canceled
     if (itemToCancel.quantity === 0) {
-      // If quantity becomes 0, remove the item from the order
-      order.items = order.items.filter(item => item.productId._id.toString() !== productId || item.size !== size);
+      itemToCancel.cancelStatus = "Cancelled";
     }
 
     // Update the order status if all items are canceled
-    if (order.items.length === 0) {
-      order.status = "canceled";
+    if (order.items.every((item) => item.cancelStatus === "Cancelled")) {
+      order.status = "canceled"; // If all items are canceled, mark the order as canceled
     }
 
     await order.save();
@@ -163,22 +180,28 @@ const cancelOrder = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (product) {
-      const variant = product.variant.find(v => v.size === size);
+      const variant = product.variant.find((v) => v.size === size);
       if (variant) {
-        variant.quantity += quantity;
+        variant.quantity += quantity; // Revert the quantity back to stock
       } else {
-        product.stock += quantity;
+        product.stock += quantity; // Revert stock if no variant
       }
       await product.save();
     }
 
-    res.redirect("/order-details/" + orderId + "?statusMessage=Product canceled/returned successfully");
+    res.redirect(
+      `/order-details/${orderId}?statusMessage=Product canceled successfully`
+    );
 
   } catch (error) {
     console.error("Error in cancelOrder:", error);
     res.status(500).send("Server error");
   }
 };
+
+
+
+
 
 
 

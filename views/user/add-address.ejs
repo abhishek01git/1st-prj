@@ -114,101 +114,96 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.getElementById('addressForm').addEventListener('submit', function(event) {
+        document.getElementById("addressForm").addEventListener("submit", function (event) {
             if (!validateForm()) {
                 event.preventDefault();
             }
         });
-
+    
         function validateForm() {
             let isValid = true;
-            const requiredFields = ["addressType", "name", "city", "landMark", "state", "pincode", "phone"];
-            requiredFields.forEach(function(field) {
-                const input = document.getElementById(field);
-                const inputValue = input.value.trim();
-                const errorElement = document.getElementById(field + '-error');
-
-                if (inputValue === "") {
-                    if (!errorElement) {
-                        const errorMessage = "This field is required.";
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = "text-danger";
-                        errorDiv.textContent = errorMessage;
-                        errorDiv.id = field + '-error';
-                        input.parentNode.appendChild(errorDiv);
-                    }
-                    isValid = false;
-                } else {
-                    if (errorElement) {
-                        errorElement.remove();
-                    }
-                }
-            });
-
-            const addressType = document.getElementById('addressType').value;
-            const name = document.getElementById('name').value;
-            const city = document.getElementById('city').value;
-            const landMark = document.getElementById('landMark').value;
-            const state = document.getElementById('state').value;
-            const pincode = document.getElementById('pincode').value;
-            const phone = document.getElementById('phone').value;
-            const altPhone = document.getElementById('altPhone').value;
+            let errorMessages = [];
+    
+            // List of required fields
+            const requiredFields = [
+                { id: "addressType", label: "Address Type" },
+                { id: "name", label: "Name" },
+                { id: "city", label: "City" },
+                { id: "landMark", label: "Landmark" },
+                { id: "state", label: "State" },
+                { id: "pincode", label: "Pincode" },
+                { id: "phone", label: "Phone" }
+            ];
+    
+            // Validation patterns
             const namePattern = /^[A-Za-z\s]+$/;
             const pincodePattern = /^\d{6}$/;
             const phonePattern = /^\d{10}$/;
-            if (!namePattern.test(name)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Name should contain alphabets only.',
-                    icon: 'error'
-                });
+    
+            // Validate required fields
+            requiredFields.forEach(function (field) {
+                const input = document.getElementById(field.id);
+                const inputValue = input.value.trim();
+                input.value = inputValue; // Trim leading/trailing spaces
+    
+                if (inputValue === "") {
+                    errorMessages.push(`${field.label} is required.`);
+                    isValid = false;
+                }
+            });
+    
+            // Fetch input values for additional validation
+            const name = document.getElementById("name").value.trim();
+            const city = document.getElementById("city").value.trim();
+            const landMark = document.getElementById("landMark").value.trim();
+            const state = document.getElementById("state").value.trim();
+            const pincode = document.getElementById("pincode").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const altPhone = document.getElementById("altPhone")?.value.trim();
+    
+            // Field-specific validations
+            if (name && !namePattern.test(name)) {
+                errorMessages.push("Name should contain alphabets only.");
                 isValid = false;
             }
-            if (!namePattern.test(city)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'City should contain alphabets only.',
-                    icon: 'error'
-                });
+            if (city && !namePattern.test(city)) {
+                errorMessages.push("City should contain alphabets only.");
                 isValid = false;
             }
-            if (!namePattern.test(landMark)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Landmark should contain alphabets only.',
-                    icon: 'error'
-                });
+            if (landMark && !namePattern.test(landMark)) {
+                errorMessages.push("Landmark should contain alphabets only.");
                 isValid = false;
             }
-            if (!namePattern.test(state)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'State should contain alphabets only.',
-                    icon: 'error'
-                });
+            if (state && !namePattern.test(state)) {
+                errorMessages.push("State should contain alphabets only.");
                 isValid = false;
             }
-            if (!pincodePattern.test(pincode)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Pincode should be a 6-digit number.',
-                    icon: 'error'
-                });
+            if (pincode && !pincodePattern.test(pincode)) {
+                errorMessages.push("Pincode should be a 6-digit number.");
                 isValid = false;
             }
-            if (!phonePattern.test(phone)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Phone number should be a 10-digit number.',
-                    icon: 'error'
-                });
+            if (phone && !phonePattern.test(phone)) {
+                errorMessages.push("Phone number should be a 10-digit number.");
                 isValid = false;
             }
-            
-            
+            if (altPhone && !phonePattern.test(altPhone)) {
+                errorMessages.push("Alternate phone number should be a 10-digit number.");
+                isValid = false;
+            }
+    
+            // Display all error messages using Swal
+            if (!isValid) {
+                Swal.fire({
+                    title: "Error",
+                    html: errorMessages.join("<br>"),
+                    icon: "error"
+                });
+            }
+    
             return isValid;
         }
     </script>
+    
 
 <%- include("../../views/partials/user/footer") %>
 </body>

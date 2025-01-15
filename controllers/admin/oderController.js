@@ -6,7 +6,6 @@ const getAllOrders = async (req, res) => {
     const orders = await Order.find({})
       .populate("userId")
       .populate("address")
-      .populate("cartId")
       .sort({ createdAt: -1 })
       .exec();
     res.render("oder", { orders });
@@ -23,7 +22,6 @@ const getOrderDetails = async (req, res) => {
     const order = await Order.findById(orderId)
       .populate("userId")
       .populate("address")
-      .populate("cartId")
       .exec();
     if (!order) {
       return res.status(404).send("Order not found");
@@ -44,7 +42,7 @@ const updateOrderStatus = async (req, res) => {
     
     
     
-    const validStatuses = ["Pending", "Shipped", "Delivered", "Cancelled"];
+    const validStatuses = ["Pending", "Shipped", "Delivered", "canceled"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid order status" });
     }
@@ -54,12 +52,14 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
     
-    if (order.status === "Delivered" || order.status === "Cancelled") {
+    if (order.status === "Delivered" || order.status === "canceled") {
       return res.status(403).json({ success: false, message: `Order status cannot be updated to '${status}'` });
     }
     
     order.status = status;
     await order.save();
+
+    
     
     res.status(200).json({ success: true, message: "Order status updated successfully", newStatus: order.status });
     
