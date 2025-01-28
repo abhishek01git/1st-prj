@@ -1,4 +1,4 @@
-
+<%- include("../../views/partials/admin/header") %>
 <style>
     .size-quantity {
     display: flex;
@@ -13,7 +13,7 @@
 }
 
 .size-quantity input {
-    flex: 1; /* Make input span full width of the label */
+    flex: 1; 
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -33,10 +33,7 @@
     display: none; /* Hide by default, show it via JavaScript when needed */
 }
 
-</style>
-<%- include("../../views/partials/admin/header") %>
-<head>
-   <style>
+
        .thumbnails-container {
            display: flex;
            overflow-x: auto;
@@ -61,6 +58,16 @@
   font-size: 1.5rem;
   cursor: pointer;
 }
+
+.size-quantity {
+            margin: 10px 0;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
 
 
    </style>
@@ -118,7 +125,7 @@
                                </div>
                            </div>
                            <% product.variant.forEach((s) => { %>
-                            <div class="size-quantity">
+                            <div class="size-quantity" style="width: 50%;">
                               <label for="size_<%= s.size %>"><%= s.size %></label>
                               <input
                                 type="number"
@@ -129,11 +136,10 @@
                                 value="<%= s.quantity %>"
                                 required
                               />
-                              <div id="size-<%= s.size %>-error" class="error-message"></div>
+                              <div id="size-<%=s.size %>" class="error-message"></div>
                             </div>
                           <% }) %>
                            <div class="card mb-4">
-
 
                                <div class="card-body">
                                    <div class="row gx-2">
@@ -146,6 +152,7 @@
                                                 </option>
                                             <%}%>
                                         </select>
+                                        <br>
                                            <div id="category-error" class="error-message"></div>
                                        </div>
                                    </div>
@@ -240,66 +247,74 @@
 <script>
 
 
-    function validateAndSubmit() {
+function validateAndSubmit() {
     if (validateForm()) {
-       document.getElementById('editForm').submit();
+        document.getElementById('editForm').submit();
     }
+}
+
+function validateForm() {
+    let isValid = true;
+
+    // Clear existing error messages
+    clearErrorMessages();
+
+    // Validate product name
+    const productName = document.getElementById("product_name");
+    if (!productName.value.trim()) {
+        showError("productName-error", "Product name is required.");
+        isValid = false;
     }
-    
-     
-    
-    function validateForm() {
-  let isValid = true;
 
-  // Clear existing error messages
-  clearErrorMessages();
-
-  // Validate product name
-  const productName = document.getElementById("product_name");
-  if (!productName.value.trim()) {
-    showError("productName-error", "Product name is required.");
-    isValid = false;
-  }
-
-  // Validate description
-  const description = document.querySelector("[name='descriptionData']");
-  if (!description.value.trim()) {
-    showError("description-error", "Description is required.");
-    isValid = false;
-  }
-
-  // Validate regular price
-  const regularPrice = document.getElementById("regularPrice");
-  if (!regularPrice.value.trim() || isNaN(regularPrice.value)) {
-    showError("regularPrice-error", "Enter a valid regular price.");
-    isValid = false;
-  }
-
-  // Validate sale price
-  const salePrice = document.getElementById("salePrice");
-  if (!salePrice.value.trim() || isNaN(salePrice.value)) {
-    showError("salePrice-error", "Enter a valid sale price.");
-    isValid = false;
-  }
-
-  // Validate size quantities
-  const sizeInputs = document.querySelectorAll("[name^='size']");
-  sizeInputs.forEach((input) => {
-    if (!input.value.trim() || isNaN(input.value) || Number(input.value) < 0) {
-      const sizeErrorId = `${input.id}-error`;
-      showError(sizeErrorId, "Enter a valid quantity for this size.");
-      isValid = false;
+    // Validate description
+    const description = document.querySelector("[name='descriptionData']");
+    if (!description.value.trim()) {
+        showError("description-error", "Description is required.");
+        isValid = false;
     }
-  });
 
-  // Validate category selection
-  const category = document.querySelector("[name='category']");
-  if (!category.value.trim()) {
-    showError("category-error", "Please select a category.");
-    isValid = false;
-  }
+    // Validate regular price
+    const regularPrice = document.getElementById("regularPrice");
+    if (!regularPrice.value.trim() || isNaN(regularPrice.value) || Number(regularPrice.value) <= 0) {
+        showError("regularPrice-error", "Enter a valid regular price greater than 0.");
+        isValid = false;
+    }
 
-  return isValid;
+    // Validate sale price
+    const salePrice = document.getElementById("salePrice");
+    if (!salePrice.value.trim() || isNaN(salePrice.value) || Number(salePrice.value) <= 0) {
+        showError("salePrice-error", "Enter a valid sale price greater than 0.");
+        isValid = false;
+    } else if (Number(salePrice.value) >= Number(regularPrice.value)) {
+        showError("salePrice-error", "Sale price must be less than the regular price.");
+        isValid = false;
+    }
+
+    // Validate size quantities
+    const sizeInputs = document.querySelectorAll("[name^='size']");
+console.log(sizeInputs); 
+sizeInputs.forEach((input) => {
+    const sizeErrorId = `${input.id}`;
+    const sizeValue = input.value.trim();
+    console.log(sizeValue);  
+    if (!sizeValue || isNaN(sizeValue) || Number(sizeValue) < 0) {
+        showError(sizeErrorId, "Enter a valid non-negative quantity for this size.");
+        console.log(showError);
+        
+        isValid = false;
+    }
+});
+
+
+
+    // Validate category selection
+    const category = document.querySelector("[name='category']");
+    if (!category.value.trim()) {
+        showError("category-error", "Please select a category.");
+        isValid = false;
+    }
+
+    return isValid;
 }
 
 // Function to clear all error messages
@@ -313,15 +328,13 @@ function clearErrorMessages() {
 
 // Function to display error messages
 function showError(errorId, message) {
-    const errorElement = document.getElementById(elementId);
+    const errorElement = document.getElementById(errorId);
     if (errorElement) {
         errorElement.innerText = message;
         errorElement.style.display = "block";
     }
 }
 
-    
-    
     
     function viewImage1(event) {
                document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])

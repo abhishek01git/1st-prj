@@ -56,7 +56,7 @@
                     <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
                     <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                     <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                    <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                    <option value="canceled" <%= order.status === 'canceled' ? 'selected' : '' %>>Cancelled</option>
                 </select>
                     <br>         
                     <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
@@ -144,7 +144,20 @@
                     </div>
                 </div>
                 <div class="col-lg-1"></div>
-                <div class="col-lg-4">
+                <div class="col-lg-4" style="margin-left: 70%;">
+                    <% if (order.items.some(item => item.returnStatus === 'Requested')) { %>
+                        <div class="alert alert-warning mt-3">
+                            <h6>Return Request Pending</h6>
+                            <p>Some items in this order have a return request. Please review them.</p>
+                            <button 
+                                class="btn btn-primary" 
+                                onclick="approveReturn('<%= order._id %>')">
+                                Approve Return
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+                
                     <!-- Add additional content if needed -->
                 </div>
             </div>
@@ -244,6 +257,51 @@ function orderStatus(event, orderId) {
  
 
  
+function approveReturn(orderId) {
+    console.log(orderId);
+    
+    fetch(`/admin/orders/${orderId}/approve-return`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then((response) => {
+            console.log("cfvgbhnjm",response);
+            
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    throw new Error(`Server error: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data);
+            
+            alert('Return approved successfully!');
+            location.reload(); // Refresh the page to reflect changes
+        })
+        .catch((error) => {
+            console.error('Error approving return:', error);
+            alert('Failed to approve the return. Please try again.');
+        });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </script>
 

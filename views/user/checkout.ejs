@@ -175,47 +175,7 @@
 
 <body>
 
-     <!-- Start preloader -->
-     <div id="preloader">
-        <div id="ctn-preloader" class="ctn-preloader">
-            <div class="animation-preloader">
-                <div class="spinner"></div>
-                <div class="txt-loading">
-                    <span data-text-preloader="L" class="letters-loading">
-                        L
-                    </span>
-                    
-                    <span data-text-preloader="O" class="letters-loading">
-                        O
-                    </span>
-                    
-                    <span data-text-preloader="A" class="letters-loading">
-                        A
-                    </span>
-                    
-                    <span data-text-preloader="D" class="letters-loading">
-                        D
-                    </span>
-                    
-                    <span data-text-preloader="I" class="letters-loading">
-                        I
-                    </span>
-                    
-                    <span data-text-preloader="N" class="letters-loading">
-                        N
-                    </span>
-                    
-                    <span data-text-preloader="G" class="letters-loading">
-                        G
-                    </span>
-                </div>
-            </div>	
-
-            <div class="loader-section section-left"></div>
-            <div class="loader-section section-right"></div>
-        </div>
-    </div>
-    <!-- End preloader -->
+ 
 
     <!-- Start checkout page area -->
     <div class="checkout__page--area">
@@ -297,7 +257,7 @@
                                         </tbody>
                                     </table> 
                                 </div>
-                                <div class="checkout__discount--code">
+                                <!-- <div class="checkout__discount--code">
                                     <form class="d-flex" action="#">
                                         <label>
                                             <input class="checkout__discount--code__input--field border-radius-5" placeholder="Gift card or discount code"  type="text">
@@ -324,7 +284,7 @@
                                             </tr>
                                         </tfoot>
                                     </table>
-                                </div>
+                                </div> -->
                             </div>
                         </details>
                         <nav>
@@ -405,7 +365,7 @@
                         
                         <br>
                         <div >
-                            <form id="placeOrderForm" action="/place-order" method="POST">
+                            <!-- <form id="placeOrderForm" action="/place-order" method="POST"> -->
                                 <!-- Address Selection -->
                                 <div class="row">
                                     <% addresses.forEach((addressDoc, index) => { %>
@@ -428,7 +388,6 @@
                                                                 <strong>State:</strong> <%= address.state %><br />
                                                                 <strong>Pincode:</strong> <%= address.pincode %><br />
                                                                 <strong>Phone:</strong> <%= address.phone %><br />
-                                                                
                                                             </p>
                                                         </label>
                                                     </div>
@@ -440,22 +399,32 @@
                             
                                 <!-- Payment Method -->
                                 <div class="form-group mb-4">
-                                    <label for="paymentMethod">Select Payment Method</label>
-                                    <select class="form-control" id="paymentMethod" name="paymentMethod">
-                                        <option value="cod">Cash on Delivery</option>
-                                    </select>
+                                    <label>Select Payment Method</label>
+                                    <div class="form-check">
+                                        <input type="radio" id="cod" name="paymentMethod" value="cod" class="form-check-input">
+                                        <label class="form-check-label" for="cod">Cash on Delivery</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" class="form-check-input">
+                                        <label class="form-check-label" for="razorpay">Razorpay</label>
+                                    </div>
                                 </div>
+                                
+                                
                             
                                 <!-- Total Price -->
                                 <input type="hidden" name="totalAmount" value="<%= totalAmount.toFixed(2) %>">
                             
-                                <!-- Cart ID (assuming cart ID is available in context) -->
+                                <!-- Cart ID -->
                                 <input type="hidden" name="cartId" value="<%= cart.id %>">
                             
-                                <button id="checkoutButton" type="button" class="primary__btn border-radius-5">Place Order</button>
-                            </form>
+                                <!-- Razorpay Order ID -->
+                                <input type="hidden" id="razorpayOrderId" name="razorpayOrderId">
                             
-                        
+                                <!-- Submit Button -->
+                                <button id="checkoutButton" type="button" class="primary__btn border-radius-5">Place Order</button>
+                            <!-- </form> -->
+                                                    
                             <a class="previous__link--content mt-2" href="/cart">Return to cart</a>
                         </div>
                         
@@ -509,42 +478,47 @@
                 
                     <!-- Discount Code -->
                     <div class="checkout__discount--code">
-                        <form class="d-flex" action="/apply-discount" method="POST">
+                        <form class="d-flex" id="applyCouponForm">
                             <label>
-                                <input class="checkout__discount--code__input--field border-radius-5" 
-                                       placeholder="Gift card or discount code"  
-                                       type="text" name="discountCode">
+                                <input class="checkout__discount--code__input--field border-radius-5" placeholder="Gift card or discount code" id="couponCode" type="text" required>
                             </label>
                             <button class="checkout__discount--code__btn primary__btn border-radius-5" type="submit">Apply</button>
                         </form>
                     </div>
-                
+                      </form>
+                    <div id="couponFeedback"></div>
+                    
                     <!-- Total Price -->
                     <div class="checkout__total">
                         <table class="checkout__total--table">
                             <tbody class="checkout__total--body">
-                                
                                 <tr class="checkout__total--items">
                                     <td class="checkout__total--title text-left">Shipping</td>
-                                    <td class="checkout__total--amount text-right">£0.00</td>
+                                    <td class="checkout__total--amount text-right">Rs:0.00</td>
                                 </tr>
                                 <tr class="checkout__total--items">
                                     <td class="checkout__total--title text-left">Payment Method</td>
-                                    <td class="checkout__total--amount text-right">
-                                        
-                                    </td>
+                                    <td class="checkout__total--amount text-right"></td>
                                 </tr>
                             </tbody>
                             <tfoot class="checkout__total--footer">
                                 <tr class="checkout__total--items">
                                     <td class="checkout__total--title text-left">Total Amount</td>
-                                    <td class="checkout__total--amount text-right">£<%= totalAmount.toFixed(2) %></td>
+                                    <td id="total-amound" class="checkout__total--amount text-right"><%= totalAmount.toFixed(2) %></td>
+                                </tr>
+                                <!-- Add Discount Amount and Final Amount -->
+                                <tr id="discount-row" class="checkout__total--items" style="display:none;">
+                                    <td class="checkout__total--title text-left">Discount</td>
+                                    <td id="discount-amount" class="checkout__total--amount text-right">£0.00</td>
+                                </tr>
+                                <tr id="final-total-row" class="checkout__total--items" style="display:none;">
+                                    <td class="checkout__total--title text-left">Final Total</td>
+                                    <td id="final-total" class="checkout__total--amount text-right">£0.00</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                     
-                   
                       
                     
                     
@@ -557,6 +531,9 @@
 
     <!-- Scroll top bar -->
     <button id="scroll__top"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 244l144-144 144 144M256 120v292"/></svg></button>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    
 
   <!-- All Script JS Plugins here  -->
   <script src="assets/js/vendor/popper.js" defer="defer"></script>
@@ -567,13 +544,6 @@
   <!-- Customscript js -->
   <script src="assets/js/script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-
-
-
-</script>
-
   
 </body>
 
@@ -600,7 +570,7 @@ function validateNewAddressForm() {
     let isValid = true;
 
     // Array of required field names
-    const requiredFields = ['addressType', 'landmark', 'city', 'state', 'pincode', 'phone'];
+    const requiredFields = ['addressType','landmark', 'city', 'state', 'pincode', 'phone'];
 
     // Validate required fields
     requiredFields.forEach(function (fieldName) {
@@ -643,6 +613,7 @@ if (pincodeInput) {
 }
 
 
+
     return isValid;
 }
 
@@ -650,74 +621,288 @@ if (pincodeInput) {
 
     
 
-document.getElementById('checkoutButton').addEventListener('click', async () => {
-    console.log('skfjdslfsjdl111111111k')
-  const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked')?.value;
-  const paymentMethod = document.getElementById('paymentMethod').value;
 
-  if (!selectedAddressId) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Address Missing',
-      text: 'Please select a delivery address.',
-    });
-    return;
-  }
 
-  if (!paymentMethod) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Payment Method Missing',
-      text: 'Please select a payment method.',
-    });
-    return;
-  }
- console.log('skfjdslfsjd222222222222lk')
-  const data = { selectedAddressId, paymentMethod };
-  console.log('skfjdslfs3333333333333333jdlk')
-  try {
-    const response = await fetch('/place-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    console.log('skfjdsl44444444444444fsjdlk')
-    if(!response.ok) {
-        throw new Error('Server Error');
-    }
-    console.log('skfjdsl55555555555555555fsjdlk')
-    const result = await response.json();
-    console.log('skfjdslfsjd6666666666666lk')
-  if(result.success) {
-    console.log('skfjdslfsjd77777777777777lk')
-    Swal.fire({
-        icon: 'success',
-        title: 'Order Placed',
-        text: 'Your order has been placed successfully!',
-        confirmButtonText: 'Go to Orders',
-      }).then(() => {
-        window.location.href = `/order-success?orderId=${result.orderId}`;
-      });
-  } else {
-    console.log('skfjdslf8888888888888888888888sjdlk')
-        Swal.fire({
-        icon: 'error',
-        title: 'Order Failed',
-        text: result.message || 'Failed to place order. Please try again.',
-      });
 
+
+
+
+
+document.getElementById("applyCouponForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    // Get the coupon code entered by the user
+    const couponCode = document.getElementById("couponCode").value.trim();
+    
+    // Example of getting the total amount (this would come from the cart in a real application)
+    const totalAmount = Number(document.getElementById('total-amound').innerHTML);
+    
+    // Check if coupon code is empty
+    if (!couponCode) {
+        document.getElementById("couponFeedback").innerHTML = "Please enter a coupon code.";
+        return;
     }
 
-}
- catch (error) {
-    console.error('Error placing order:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error.message,
-    });
-  }
+    try {
+        // Send a POST request to the backend to apply the coupon
+        const response = await fetch('/api/apply-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ couponCode, totalAmount })  // Sending coupon code and total amount
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // If the coupon is applied successfully
+            const discount = data.discount;
+            const finalTotal = data.finalTotal;
+
+            // Update the feedback message
+            document.getElementById("couponFeedback").innerHTML = `
+                <p style="color: green;">Coupon applied! Discount: ${discount.toFixed(2)}. Final total: ${finalTotal.toFixed(2)}</p>
+            `;
+
+            // Show discount row and final total row
+            document.getElementById("discount-row").style.display = "table-row";
+            document.getElementById("final-total-row").style.display = "table-row";
+
+            // Update the discount and final total amounts
+            document.getElementById("discount-amount").innerHTML = `${discount.toFixed(2)}`;
+            document.getElementById("final-total").innerHTML = `${finalTotal.toFixed(2)}`;
+
+            // Update the total amount to reflect the new value after discount
+            document.getElementById('total-amound').innerHTML = `${totalAmount.toFixed(2)}`;
+        } else {
+            // If there's an error (e.g., invalid coupon, expired, etc.)
+            document.getElementById("couponFeedback").innerHTML = `
+                <p style="color: red;">${data.message}</p>
+            `;
+        }
+    } catch (error) {
+        // Handle any network or server errors
+        document.getElementById("couponFeedback").innerHTML = `
+            <p style="color: red;">An error occurred while applying the coupon. Please try again.</p>
+        `;
+    }
 });
+
+
+
+document.getElementById('checkoutButton').addEventListener('click', function () {
+ 
+    const selectedAddress = document.querySelector('input[name="selectedAddressId"]:checked');
+    const selectedAddressId = selectedAddress ? selectedAddress.value : null;
+
+    
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    const paymentMethodValue = paymentMethod ? paymentMethod.value : null;
+
+   
+    const couponCode = document.getElementById('couponCode') ? document.getElementById('couponCode').value : null;
+
+   
+    const totalAmount = document.querySelector('input[name="totalAmount"]').value;
+    const cartId = document.querySelector('input[name="cartId"]').value;
+
+    
+    if (!selectedAddressId) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Address Required',
+            text: 'Please select an address before proceeding.',
+        });
+        return; 
+    }
+
+    if (!paymentMethodValue) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Payment Method Required',
+            text: 'Please select a payment method before proceeding.',
+        });
+        return; 
+    }if (paymentMethodValue === 'cod') {
+        
+        const orderData = {
+            selectedAddressId,
+            paymentMethod: paymentMethodValue,
+            couponCode,
+            totalAmount,
+            cartId,
+        };
+
+       
+        fetch('/place-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Check if the order was successful
+        if (data.success) {
+            const orderId = data.orderId;
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Placed!',
+                text: 'Your order has been placed successfully.',
+            }).then(() => {
+                window.location.href = `/order-success?orderId=${orderId}`;
+            });
+        } else {
+            // Display the error message from the server
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Failed',
+                text: data.message || 'Failed to place the order. Please try again.',
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error placing the order:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Order Failed',
+            text: 'An error occurred while placing the order. Please try again.',
+        });
+    });
+} else if (paymentMethodValue === 'razorpay') {
+    // Create the order by sending details to your server
+    fetch('/create-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            amount: totalAmount,
+            selectedAddress: selectedAddressId,
+            paymentMethod: paymentMethodValue,
+            selectedAddressId,
+            cartId,
+            couponCode
+        }),
+    })
+    .then(response => response.json())
+    .then(order => {
+        if (!order.success) {
+        // Handle validation errors
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: order.message || 'There was an issue with your cart. Please check your items and try again.',
+        });
+        return;
+      }
+        const razorpayOrderId = order.razorpayOrderId;
+        console.log("Razorpay Order ID:", razorpayOrderId);
+
+
+    
+        
+        // Initialize Razorpay payment window
+        const options = {
+            key: 'rzp_test_eFAzBb72ouO1Ge', // Your Razorpay key id
+            amount: totalAmount * 100, // Amount in smallest currency unit (paise)
+            currency: "INR",
+            order_id: razorpayOrderId, // The order ID returned by the server
+            name: "Elite Threads",
+            description: "Order Payment",
+            
+            handler: function (response) {
+                console.log("Payment response:", response);
+
+                // Check if the required fields are available
+                if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
+                    console.error("Missing required Razorpay response fields");
+                    return;
+                }
+
+                const paymentData = {
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    selectedAddressId: selectedAddressId,
+                    paymentMethod: paymentMethodValue,
+                    couponCode: couponCode,
+                    totalAmount: totalAmount,
+                    cartId: cartId,
+                };
+
+                // Send the payment data to the server for verification
+                fetch('/verify-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(paymentData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const orderId = data.orderId;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed!',
+                            text: 'Your order has been placed successfully.',
+                        }).then(() => {
+                            window.location.href = `/order-success?orderId=${orderId}`; 
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Verification Failed',
+                            text: 'There was an issue verifying your payment. Please try again.',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during payment verification:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Order Failed',
+                        text: 'An error occurred while verifying your payment. Please try again.',
+                    });
+                });
+            },
+            prefill: {
+                name: "John Doe",
+                email: "john.doe@example.com",
+                contact: "1234567890",
+            },
+            notes: {
+                address: selectedAddressId,
+            },
+            theme: {
+                color: "#F37254",
+            },
+        };
+
+
+
+
+
+        // Open Razorpay payment modal
+        const rzp1 = new Razorpay(options);
+        rzp1.open(); // Trigger the payment modal to open
+    })
+    .catch(error => {
+        console.error("Error creating Razorpay order:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: 'There was an error while creating the Razorpay order. Please try again.',
+        });
+    });
+}
+
+});
+
+
 
 
 
@@ -747,6 +932,10 @@ const odersuccess=async (req, res) => {
       res.status(500).send('An error occurred while retrieving the order.');
     });
 };
+
+
+
+
 
 
 </script>

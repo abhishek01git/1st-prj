@@ -2,7 +2,7 @@ const { ref } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-// Define the Product Schema
+
 const ProductSchema = new Schema(
   {
     productName: {
@@ -85,25 +85,36 @@ reviews:[{
   { timestamps: true }
 );
 
-// Virtual field for total stock
+
 ProductSchema.virtual('totalStock').get(function () {
   return this.variant.reduce((acc, curr) => acc + curr.quantity, 0);
 });
 
-// Pre-save hook to ensure salePrice defaults to regularPrice if not set
-ProductSchema.pre('save', function (next) {
-  if (!this.salePrice) {
-    this.salePrice = this.regularPrice;
+
+ProductSchema.virtual('discountedPrice').get(function () {
+  if (this.productOffer > 0) {
+   
+    return this.regularPrice - (this.regularPrice * this.productOffer) / 100;
   }
-  next();
+  return this.regularPrice; 
 });
 
-// Query helper to exclude deleted records
+
+ProductSchema.virtual('discountedPrice').get(function () {
+  if (this.productOffer > 0) {
+    return Math.floor(this.regularPrice - (this.regularPrice * this.productOffer) / 100);
+  }
+  return this.salePrice || this.regularPrice;
+});
+
+
+
 ProductSchema.query.notDeleted = function () {
   return this.where({ deleted: false });
 };
 
-// Indexes for faster querying
+
+
 ProductSchema.index({ productName: 1, category: 1 });
 ProductSchema.index({ status: 1 });
 

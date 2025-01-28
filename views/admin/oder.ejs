@@ -3,9 +3,12 @@
 <main class="content-main" style="margin-left: 15%;">
     <section class="content-main">
         <div class="content-header">
-            <h2 class="content-title">Order List</h2>
+            <h2 class="content-title">Sales Report</h2>
         </div>
     
+        <!-- Report Filter Form -->
+       
+        <!-- Orders Table -->
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -32,7 +35,6 @@
                                     <td><%= order.createdAt.toDateString() %></td>
                                     <td class="text-end">
                                         <a href="/admin/orders/<%= order._id %>" class="btn btn-sm btn-primary">Details</a>
-                                        
                                     </td>
                                 </tr>
                             <% }) %>
@@ -42,32 +44,29 @@
             </div>
         </div>
     </section>
-    
-  
-    
 </main>
-            <!-- content-main end// -->
-            <footer class="main-footer font-xs">
-                <div class="row pb-30 pt-15">
-                    <div class="col-sm-6">
-                        <script>
-                            document.write(new Date().getFullYear());
-                        </script>
-                        &copy; Nest - HTML Ecommerce Template .
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end">All rights reserved</div>
-                    </div>
-                </div>
-            </footer>
-        </main>
-        <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
-        <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
-        <script src="assets/js/vendors/select2.min.js"></script>
-        <script src="assets/js/vendors/perfect-scrollbar.js"></script>
-        <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
-        <!-- Main Script -->
-        <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
-    </body>
-</html>
 
+<!-- Footer -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template.
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="assets/js/vendors/select2.min.js"></script>
+<script src="assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+</body>
+</html>

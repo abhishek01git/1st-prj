@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login</title>
   <style>
-    /* General Styles */
+    
     body {
       font-family: Arial, sans-serif;
       background-color: #e6f7e6; /* Light green background */
@@ -28,13 +28,13 @@
 
     .login-container h2 {
       text-align: center;
-      margin-bottom: 30px; /* Increased margin */
-      color: #2e7d32; /* Dark green text */
-      font-size: 28px; /* Larger font size */
+      margin-bottom: 30px; 
+      color: #2e7d32; 
+      font-size: 28px; 
     }
 
     .form-group {
-      margin-bottom: 20px; /* Increased spacing between fields */
+      margin-bottom: 20px;    
     }
 
     .form-group label {
@@ -114,7 +114,7 @@
       loginForm.addEventListener("submit", function (event) {
         let isValid = true;
 
-        // Validate email (basic email format check)
+        
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         if (!emailPattern.test(emailField.value.trim())) {
           emailError.textContent = "Please enter a valid email address.";
@@ -125,7 +125,7 @@
           emailError.style.display = "none";
         }
 
-        // Validate password (minimum 8 characters)
+       
         if (passwordField.value.trim().length < 3) {
           passwordError.textContent = "Password must be at least 3 characters long.";
           passwordError.style.display = "block";
@@ -135,7 +135,7 @@
           passwordError.style.display = "none";
         }
 
-        // Prevent form submission if validation fails
+      
         if (!isValid) {
           event.preventDefault();
           generalError.style.display = "none";
@@ -144,7 +144,7 @@
         }
       });
 
-      // Clear error messages on input
+      
       emailField.addEventListener("input", () => {
         emailError.textContent = "";
         emailError.style.display = "none";

@@ -1,5 +1,7 @@
 const Category = require("../../models/categotySchema");
 const multer = require("../../utils/multer");
+const product=require('../../models/productSchema');
+const Product = require("../../models/productSchema");
 const categoryInfo = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -84,6 +86,104 @@ const getUnlistCateroty = async (req, res) => {
 };
 
 
+
+
+const addCategoryOffer=async(req,res)=>{
+
+try {
+  
+  const percentage=parseInt(req.body.percentage)
+  const categoryId=req.body.categoryId;
+  const category=await Category.findById(categoryId);
+
+
+console.log(percentage);
+console.log('12345',categoryId);
+console.log(category);
+
+
+
+
+  if(!category){
+    return res.status(404).json({status:false,message:"category not found"})
+  } 
+
+  
+  const products= await Product.find({category:category._id});
+  const hasproductOffer=products.some((product)=>product.productOffer>percentage);
+  if(hasproductOffer){
+return res.json({status:false,message:"Products within category already  have product offer"})
+  }
+  await Category.updateOne({_id:categoryId},{$set:{categoryOffer:percentage}});
+   
+for(const product of products){
+  product.productOffer=0;
+  product.salePrice=product.regularPrice;
+  await product.save();
+}
+res.json({status:true})
+
+} catch (error) {
+  res.status(500).json({status:false,message:'internal server error'})
+}
+
+}
+
+
+const removeCategoryOffer = async (req, res) => {
+  try {
+    const categoryId = req.body.categoryId;
+
+ 
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ status: false, message: 'Category not found' });
+    }
+
+    const percentage = category.categoryOffer;
+
+   
+    const products = await Product.find({ category: category._id });
+
+ 
+    if (products.length > 0) {
+      for (const product of products) {
+        
+        if (product.regularPrice) {
+         
+          product.salePrice += Math.floor(product.regularPrice * (percentage / 100));
+
+          
+          if (product.salePrice > product.regularPrice) {
+            product.salePrice = product.regularPrice;
+          }
+        } else {
+          console.warn(`Product ${product._id} does not have a regular price.`);
+        }
+
+        
+        product.productOffer = 0;
+
+      
+        await product.save();
+      }
+    }
+
+   
+    category.categoryOffer = 0;
+    
+
+    await category.save();
+
+    res.json({ status: true, message: 'Offer removed successfully' });
+
+  } catch (error) {
+    console.error('Error removing category offer:', error);
+    res.status(500).json({ status: false, message: 'Internal server error' });
+  }
+};
+
+
 const getEditCategory = async (req, res) => {
   try {
     const id = req.query.id;
@@ -151,4 +251,6 @@ module.exports = {
   getUnlistCateroty,
   getEditCategory,
   editCategory,
+  addCategoryOffer,
+  removeCategoryOffer
 };

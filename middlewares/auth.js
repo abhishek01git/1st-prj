@@ -1,14 +1,14 @@
 const User = require('../models/userSchema');
 
-// User Authentication Middleware
+
 const userAuth = async (req, res, next) => {
     try {
         console.log('Session:', req.session);
         if (req.session.user) {
             const user = await User.findById(req.session.user);
             if (user && !user.isBlocked) {
-                req.user = user; // Attach the user to the request object
-                console.log('Authenticated user:', req.user); // Check if user is attached
+                req.user = user; 
+                console.log('Authenticated user:', req.user); 
                 return next();
             } else {
                 console.log('User is blocked or does not exist.');
@@ -31,9 +31,7 @@ const userAuth = async (req, res, next) => {
 const adminAuth = async (req, res, next) => {
     try {
         
-
-
-        if (req.session.admin == true) {
+        if (req.session.admin===true) {
             return next();
         } else {
             console.log('Admin user not found.');

@@ -11,6 +11,7 @@ const Cart=require('../models/CartSchema')
 const CartController=require('../controllers/user/cartController')
 const oderController=require('../controllers/user/oderController')
 const Review=require('../models/ReviewSchema')
+const  WishlistController=require('../controllers/user/wishlistController')
 
 
 
@@ -41,14 +42,16 @@ router.get('/productDetails',blocker,productController.productDetails);
 router.get('/shop',blocker,productController.shopLoad);
 router.post('/addToCart', userAuth, CartController.addToCart); 
 router.get('/cart', userAuth, CartController.viewCart); 
-router.post('/cart/update/:productId', userAuth, CartController.updateCartQuantity);
+router.patch('/cart/update/:productId', userAuth, CartController.updateCartQuantity);
 router.delete('/cart/remove/:productId', userAuth,CartController.removeFromCart); 
-router.get('/search', productController.searchProducts);
-// router.get('/search', productController.searchProducts);
-
-// router.get('/filter',productController.filterProduct)
 
 
+
+
+router.post('/addToWishlist',userAuth,WishlistController.addToWishlist)
+
+router.get('/wishlist',userAuth,WishlistController.getWishlist)
+router.delete('/remove-wishlist-item/:id',userAuth,WishlistController.removewishlist);
 
 router.get('/profile',userAuth,profileController.userProfile)
 router.get('/order-details/:orderId', userAuth, profileController.getOrderDetails);
@@ -72,7 +75,7 @@ router.post('/forget-password',profileController.forgetPassword)
 router.post('/forget-passwordOTP',profileController.forgetPasswordOtp)
 router.get('/reset-password',profileController.loadResetPassword)
 router.post('/reset-password',profileController.resetPassword)
-router.put("/order/:orderId/deliver",userAuth,profileController.oderDelivered)
+router.post("/order/:orderId/deliver",userAuth,profileController.oderDelivered)
 router.post('/review/:userId',userAuth,profileController.addReview)
 
 
@@ -82,9 +85,19 @@ router.post('/review/:userId',userAuth,profileController.addReview)
 
 router.get('/checkout',userAuth,oderController.renderCheckoutPage)
 router.post('/checkout/add-address',userAuth,oderController.saveNewAddress)
+router.post('/apply-coupon',userAuth,oderController.applyCoupon)
+
  router.post('/place-order',userAuth,oderController.placeOrder);
  router.get('/order-success',userAuth, oderController.orderSuccess);
  router.get('/order-history',userAuth,oderController.getOrderHistory)
+
+ router.post('/create-order',userAuth,oderController.createOrder)
+ router.post('/verify-payment',userAuth,oderController.VerifyPayment)
+ router.post('/order/:orderId/return',userAuth,profileController.requestReturn);
+ router.get('/wallet',userAuth,oderController.getWallet );
+ router.post("/updateWallet",userAuth,oderController.updateWallet)
+ 
+
 
 
 

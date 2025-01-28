@@ -2,16 +2,17 @@ const Cart = require("../../models/CartSchema");
 const Product = require("../../models/productSchema");
 const mongoose = require("mongoose");
 const User = require("../../models/userSchema");
+const errorMiddleware = require('../../middlewares/errorMiddleware');
+
 
 const addToCart = async (req, res) => {
   const { productId, size, quantity } = req.body;
-  console.log("this is data ", req.body);
+  console.log("Request Body: ", req.body);
 
   try {
     const userId = req.user.id;
-    console.log("ertyui", userId);
+    console.log("User ID:", userId);
 
-    // Check if user session is available
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -20,19 +21,21 @@ const addToCart = async (req, res) => {
       });
     }
 
-    // Fetch the product and its stock information
+    
     const product = await Product.findById(productId).select(
-      "productName salePrice productImage variant"
-    );
+      "productName salePrice productImage variant category productOffer"
+    ).populate('category');  
+
+    console.log("Fetched Product: ", product);
 
     if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    // Check if the selected size is available
+   
     const variant = product.variant.find((v) => v.size === size);
+    console.log("Variant: ", variant);
+
     if (!variant) {
       return res.status(400).json({
         success: false,
@@ -40,42 +43,47 @@ const addToCart = async (req, res) => {
       });
     }
 
-    // Fetch user's cart or create a new one
+   
+    const categoryOffer = product.category?.categoryOffer || 0;  
+    const productOffer = product.productOffer || 0;  
+
+    console.log("Category Offer: ", categoryOffer);
+    console.log("Product Offer: ", productOffer);
+
+    const effectiveOffer = Math.max(categoryOffer, productOffer);
+    console.log("Effective Offer (Max of Category and Product Offer):", effectiveOffer);
+
+    const offerPrice = (product.salePrice * effectiveOffer) / 100;
+    console.log("Offer Price: ", offerPrice);
+
+    const finalPrice = product.salePrice - offerPrice;
+    console.log("Final Price after offer: ", finalPrice);
+
+  
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId });
     }
 
-    // Find the index of the existing item in the cart
     const existingItemIndex = cart.items.findIndex(
       (item) => item.productId.toString() === productId && item.size === size
     );
 
+    
     if (existingItemIndex !== -1) {
-      // If the item exists, calculate the new total quantity
       const newQuantity = cart.items[existingItemIndex].quantity + quantity;
 
       if (variant.quantity < newQuantity) {
-        // Remove the item from the cart if the quantity exceeds stock
-        cart.items.splice(existingItemIndex, 1);
-        cart.totalAmount = cart.items.reduce(
-          (total, item) => total + item.quantity * item.price,
-          0
-        );
-
-        await cart.save();
-
         return res.status(400).json({
           success: false,
-          message: `Insufficient stock. Only ${variant.quantity} items available. The item has been removed from your cart.`,
+          message: `Insufficient stock. Only ${variant.quantity} items available.`,
           cart,
         });
       }
 
-      // Update the quantity of the existing item
       cart.items[existingItemIndex].quantity = newQuantity;
     } else {
-      // If the item is new to the cart
+     
       if (variant.quantity < quantity) {
         return res.status(400).json({
           success: false,
@@ -83,24 +91,23 @@ const addToCart = async (req, res) => {
         });
       }
 
-      // Add the new item to the cart
       cart.items.push({
         productId,
         size,
         quantity,
         productName: product.productName,
-        price: product.salePrice,
+        price: finalPrice,  
         image: product.productImage[0],
       });
     }
 
-    // Recalculate the total cart amount
+   
     cart.totalAmount = cart.items.reduce(
       (total, item) => total + item.quantity * item.price,
       0
     );
 
-    // Save the updated cart
+  
     await cart.save();
 
     res.status(200).json({
@@ -122,20 +129,20 @@ const addToCart = async (req, res) => {
 
 
 
+
 const viewCart = async (req, res) => {
   const userId = req.user.id;
 
   try {
     const user = req.session.user;
     const userData = await User.findOne({ _id: user });
+
     const cart = await Cart.findOne({ userId })
-      .populate("items.productId", "salePrice productName productImage")
+      .populate("items.productId", "salePrice productName productImage variant category productOffer")
       .exec();
 
     if (!cart || cart.items.length === 0) {
-      console.log(
-        `[viewCart]: No cart found or cart is empty for user: ${userId}`
-      );
+      console.log(`[viewCart]: No cart found or cart is empty for user: ${userId}`);
       return res.render("cart", {
         user: userData,
         cartItems: [],
@@ -143,26 +150,38 @@ const viewCart = async (req, res) => {
       });
     }
 
-    const totalAmount = cart.items.reduce((sum, item) => {
-      const price = item.productId ? item.productId.salePrice : 0;
-      return sum + item.quantity * price;
-    }, 0);
+    let totalAmount = 0;
 
+    
+    cart.items.forEach((item) => {
+      const product = item.productId;
+      if (product) {
+        
+        const categoryOffer = product.category?.categoryOffer || 0; 
+        const productOffer = product.productOffer || 0; 
 
+        const effectiveOffer = Math.max(categoryOffer, productOffer); 
+        
+       
+        const offerPrice = (product.salePrice * effectiveOffer) / 100;
+        const finalPrice = product.salePrice - offerPrice;
 
-     console.log(`[viewCart]: Total amount for user ${userId}: ${totalAmount}`);
-    // console.log(`[viewCart]: Cart items for user ${userId}:`, cart.items);
+        console.log(`Item: ${product.productName}, Offer: ${effectiveOffer}%`);
+        console.log(`Sale Price: ${product.salePrice}, Final Price: ${finalPrice}`);
+
+       
+        totalAmount += item.quantity * finalPrice;
+      }
+    });
+
+    console.log(`[viewCart]: Total amount for user ${userId}: ${totalAmount}`);
 
     res.render("cart", { user: userData, cartItems: cart.items, totalAmount });
   } catch (error) {
     console.error(`[viewCart Error]:`, error.message, error.stack);
-    res
-      .status(500)
-      .json({ error: "An unexpected error occurred. Please try again later." });
+    res.status(500).json({ error: "An unexpected error occurred. Please try again later." });
   }
 };
-
-
 
 
 
@@ -210,7 +229,7 @@ const updateCartQuantity = async (req, res) => {
     const { productId, quantity, size } = req.body;
     console.log("Received request data:", req.body);
 
-    // Validation checks
+
     if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
       return res
         .status(400)
@@ -249,6 +268,9 @@ const updateCartQuantity = async (req, res) => {
         });
     }
 
+    console.log("Variant with size ${size} not found",selectedVariant);
+    
+
     if (quantity > selectedVariant.quantity) {
       return res.status(400).json({
         success: false,
@@ -285,11 +307,18 @@ const updateCartQuantity = async (req, res) => {
       console.log('Item Price:', price, 'Quantity:', quantity); 
       return sum + (quantity * price);
     }, 0);
+
     const totalAmount = existingItem.price * quantity    
 
-    console.log(grandTotal)
+    cart.totalAmount = grandTotal;
+
+    console.log("grand total",grandTotal)
+    console.log("total",totalAmount);
+    
 
     await cart.save();
+    console.log("full added data is ",cart);
+    
     res
       .status(200)
       .json({ success: true, message: "Cart updated successfully.", cart, totalAmount, grandTotal });

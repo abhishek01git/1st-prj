@@ -6,6 +6,7 @@ const Product = require("../../models/productSchema");
 const Order = require("../../models/oderSchemma");
 const { ObjectId } = require("mongoose").Types;
 const Review=require('../../models/ReviewSchema')
+const Wallet=require('../../models/WalletSchemma')
 
 const userProfile = async (req, res) => {
   try {
@@ -85,15 +86,13 @@ res.status(200),send("Order marked as delivered successfully")
 }
 
 
-
-
-
 const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const productId = req.body.productId; // Specific product ID to cancel
-    const size = req.body.size; // Applicable size
-    const quantity = req.body.quantity; // Quantity to cancel
+    const productId = req.body.productId; 
+    const size = req.body.size;
+    const quantity = req.body.quantity; 
+    const cancelReason = req.body.cancelReason || "No reason provided"; 
 
     const order = await Order.findById(orderId).populate("items.productId");
 
@@ -101,7 +100,7 @@ const cancelOrder = async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    // Check if the order is delivered
+   
     if (order.status === "Delivered") {
       return res.render("orderDetails", { 
         order, 
@@ -111,7 +110,7 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // If the order has already been canceled, show the details with a message
+    
     if (order.status === "canceled") {
       return res.render("orderDetails", { 
         order, 
@@ -121,83 +120,222 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // If no specific product is provided, cancel the entire order
+    
     if (!productId) {
-      order.status = "canceled"; // Mark the order as canceled
-      await order.save();
+      if (!cancelReason) {
+        return res.status(400).send("Cancel reason is required for order cancellation");
+      }
+            
+      
+      if (order.paymentMethod !== "cod") {
+        const wallet = await Wallet.findOne({ userId: order.userId });
+        if (wallet) {
+          wallet.balance += order.totalAmount; 
+          wallet.transactions.push({
+            type: 'credit',
+            amount: order.totalAmount,
+            description: `Refund for order cancellation (Order ID: ${orderId})`,
+          });
+          await wallet.save();
+        }
+      }
 
-      // Update stock for all items in the order
+      order.status = "canceled"; 
+      order.orderCancelReason = cancelReason; 
+
+      
+      order.items.forEach(item => {
+        item.cancelReason = cancelReason;
+        item.cancelStatus = "Cancelled";
+      });
+
+      
       for (const item of order.items) {
         const product = await Product.findById(item.productId._id);
-
         if (product) {
           const variant = product.variant.find((v) => v.size === item.size);
           if (variant) {
-            variant.quantity += item.quantity; // Revert the quantity back to stock
+            variant.quantity += item.quantity; 
           } else {
-            product.stock += item.quantity; // Revert stock if no variant
+            product.stock += item.quantity;
           }
           await product.save();
         }
       }
 
-      return res.redirect(
-        `/order-details/${orderId}?statusMessage=Order canceled successfully`
-      );
+      await order.save();
+      return res.redirect(`/order-details/${orderId}?statusMessage=Order canceled successfully`);
     }
 
-    // Handle cancellation of a specific product
+    
     const itemToCancel = order.items.find(
-      (item) =>
-        item.productId._id.toString() === productId && item.size === size
+      (item) => item.productId._id.toString() === productId && item.size === size
     );
+  console.log(1111111111111111111111111111,itemToCancel);
+  
 
     if (!itemToCancel) {
       return res.status(404).send("Product not found in order");
     }
 
-    // Adjust the quantity if the user is canceling a specific quantity
+   
     if (itemToCancel.quantity < quantity) {
       return res.status(400).send("Quantity to cancel exceeds the order quantity");
     }
 
-    // Decrease the quantity of the item
-    itemToCancel.quantity -= quantity;
+ 
+    if (order.paymentMethod !== "cod") {
+      const wallet = await Wallet.findOne({ userId: order.userId });
+      console.log(222222222222222222222222222222,wallet);
+      
+      if (wallet) {
+       
+        const itemPrice = itemToCancel.price;
+        const grandTotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const finalTotal = order.totalAmount; 
 
-    // If quantity becomes 0, mark the item as canceled
-    if (itemToCancel.quantity === 0) {
-      itemToCancel.cancelStatus = "Cancelled";
+        const refundAmount = (itemPrice * quantity) * (finalTotal / grandTotal);
+
+        
+        wallet.balance += refundAmount;
+
+       
+        wallet.transactions.push({
+          type: "credit",
+          amount: refundAmount,
+          description: `Refund for product cancellation (Product ID: ${itemToCancel.productId._id})`,
+        });
+
+        await wallet.save();
+      } else {
+        throw new Error("Wallet not found for the user");
+    }
+    
     }
 
-    // Update the order status if all items are canceled
+    
+    itemToCancel.quantity -= quantity;
+
+   
+    if (itemToCancel.quantity === 0) {
+      itemToCancel.cancelStatus = "Cancelled";
+      itemToCancel.cancelReason = cancelReason;
+    }
+
+    
     if (order.items.every((item) => item.cancelStatus === "Cancelled")) {
-      order.status = "canceled"; // If all items are canceled, mark the order as canceled
+      order.status = "canceled";
+      order.orderCancelReason = cancelReason;
     }
 
     await order.save();
 
-    // Update product stock for the canceled item(s)
+    
     const product = await Product.findById(productId);
-
     if (product) {
       const variant = product.variant.find((v) => v.size === size);
       if (variant) {
-        variant.quantity += quantity; // Revert the quantity back to stock
+        variant.quantity += quantity;
       } else {
-        product.stock += quantity; // Revert stock if no variant
+        product.stock += quantity;
       }
       await product.save();
     }
 
-    res.redirect(
-      `/order-details/${orderId}?statusMessage=Product canceled successfully`
-    );
-
+    res.redirect(`/order-details/${orderId}?statusMessage=Product canceled successfully`);
   } catch (error) {
     console.error("Error in cancelOrder:", error);
     res.status(500).send("Server error");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+const requestReturn = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const productId = req.body.productId;
+    const size = req.body.size;
+    const quantity = req.body.quantity;
+    const returnReason = req.body.returnReason;
+
+    const order = await Order.findById(orderId).populate('items.productId');
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+  
+    const itemToReturn = order.items.find(item => 
+      item.productId._id.toString() === productId && item.size === size
+    );
+
+    if (!itemToReturn) {
+      return res.status(404).send("Product not found in the order for the specified size.");
+    }
+
+    
+    if (itemToReturn.returnStatus === "Returned") {
+      return res.status(400).send("This product has already been returned.");
+    }
+
+    
+    if (!returnReason) {
+      return res.status(400).send("Return reason is required for product return.");
+    }
+
+    
+    if (quantity > itemToReturn.quantity) {
+      return res.status(400).send("Quantity to return exceeds the purchased quantity.");
+    }
+
+    
+    itemToReturn.returnStatus = "Requested";
+    itemToReturn.returnReason = returnReason;
+    itemToReturn.returnQuantity = quantity; 
+
+   
+    await order.save();
+
+
+    const allItemsRequestedForReturn = order.items.every(item => item.returnStatus === "Requested");
+
+    if (allItemsRequestedForReturn) {
+      order.returnStatus = "Return Requested";  
+    }
+
+   
+    await order.save();
+
+   
+    return res.redirect(`/order-details/${orderId}?statusMessage=Product return requested successfully.`);
+
+  } catch (error) {
+    console.error("Error in requestReturn:", error);
+    res.status(500).send("Server error");
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -365,6 +503,8 @@ const loadChangePassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   const { currentPass, newPass, confirmPass } = req.body;
+  console.log(req.body);
+  
   try {
     const user = req.user;
 
@@ -632,6 +772,14 @@ const resetPassword = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
 module.exports = {
   userProfile,
   loadprofile,
@@ -655,5 +803,6 @@ module.exports = {
   loadResetPassword,
   resetPassword,
   oderDelivered,
-  addReview
+  addReview,
+  requestReturn
 };

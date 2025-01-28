@@ -6,29 +6,79 @@ const Joi = require("joi");
 
 const Category = require("../../models/categotySchema");
 const Product = require("../../models/productSchema");
+const Wallet=require('../../models/WalletSchemma')
 
 
-const loadHomepage = async (req, res) => { 
+const loadHomepage = async (req, res) => {
   try {
     if (req.session.passport) {
       req.session.user = req.session.passport.user;
     }
+
+    
     const category = await Category.find({ isListed: true });
-    let productData = await Product.find({ isBlocked: false }).populate({path:"category",match:{isListed:true}}).sort({createdAt:-1})
+
+    
+    let productData = await Product.find({ isBlocked: false })
+      .populate({ path: "category", match: { isListed: true } })
+      .sort({ createdAt: -1 });
+
+    
     productData = productData.filter((product) => product.category);
-      const user = req.session.user;
+
+    
+    const processedProducts = productData.map((product) => {
+      const categoryOffer = product.category?.categoryOffer || 0; 
+      const productOffer = product.productOffer || 0; 
+      const effectiveOffer = Math.max(categoryOffer, productOffer); 
+
+      
+      const salePrice =
+        product.regularPrice - (product.regularPrice * effectiveOffer) / 100;
+
+      return {
+        ...product._doc, 
+        effectiveOffer, 
+        salePrice: salePrice.toFixed(2), 
+      };
+    });
+
+   
+    const user = req.session.user;
     if (user) {
       const userData = await User.findOne({ _id: user });
+
+      
+      let wallet = await Wallet.findOne({ userId: user });
+      if (!wallet) {
+        wallet = new Wallet({
+          userId: user,
+          balance: 0, 
+          transactions: [], 
+        });
+        await wallet.save();
+        console.log(`Wallet created for user ${user}`);
+      }
+
       return res.render("home", {
-        user: userData,products: productData,categories: category,});
+        user: userData,
+        wallet, 
+        products: processedProducts, 
+        categories: category,
+      });
     } else {
-      return res.render("home", { products: productData,categories: category});
+      return res.render("home", {
+        products: processedProducts, 
+        categories: category,
+      });
     }
   } catch (error) {
-    console.log("home page not found");
-    res.status(500).send("server error");
+    console.error("Error loading homepage:", error);
+    res.status(500).send("Server error");
   }
 };
+
+
 
 
 
@@ -214,7 +264,7 @@ const login = async (req, res) => {
       return res.render("login", { message: error.details[0].message });
     }
 
-    const findUser = await User.findOne({ isAdmin: 0, email });
+    const findUser = await User.findOne({ isAdmin: false, email });
     if (!findUser) {
       return res.render("login", { message: "User not found" });
     }

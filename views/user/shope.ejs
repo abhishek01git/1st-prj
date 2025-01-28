@@ -266,7 +266,9 @@
             <div class="container-fluid">
                 <div class="shop__header bg__gray--color d-flex align-items-center justify-content-between mb-30">
                     <button class="widget__filter--btn d-flex d-lg-none align-items-center" data-offcanvas>
-                        <svg  class="widget__filter--btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28" d="M368 128h80M64 128h240M368 384h80M64 384h240M208 256h240M64 256h80"/><circle cx="336" cy="128" r="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/><circle cx="176" cy="256" r="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/><circle cx="336" cy="384" r="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/></svg> 
+                        <svg class="widget__filter--btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28" d="M368 128h80M64 128h240M368 384h80M64 384h240M208 256h240M64 256h80"/><circle cx="336" cy="128" r="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/><circle cx="176" cy="256" r="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/><circle cx="336" cy="384" r="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/>
+                        </svg> 
                         <span class="widget__filter--btn__text">Filter</span>
                     </button>
                     <div class="product__view--mode d-flex align-items-center">
@@ -281,29 +283,13 @@
                                     <option value="newArrivals">New Arrivals</option>
                                     <option value="aToZ">A - Z</option>
                                     <option value="zToA">Z - A</option>
-                                  </select>
-                                  
-                            </div>
-                        </div>
-                        <div class="product__view--mode__list">
-                            <div class="product__grid--column__buttons d-flex justify-content-center">
-                                <button class="product__grid--column__buttons--icons active" aria-label="product grid button" data-toggle="tab" data-target="#product_grid">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 9 9">
-                                        <g  transform="translate(-1360 -479)">
-                                          <rect id="Rectangle_5725" data-name="Rectangle 5725" width="4" height="4" transform="translate(1360 479)" fill="currentColor"/>
-                                          <rect id="Rectangle_5727" data-name="Rectangle 5727" width="4" height="4" transform="translate(1360 484)" fill="currentColor"/>
-                                          <rect id="Rectangle_5726" data-name="Rectangle 5726" width="4" height="4" transform="translate(1365 479)" fill="currentColor"/>
-                                          <rect id="Rectangle_5728" data-name="Rectangle 5728" width="4" height="4" transform="translate(1365 484)" fill="currentColor"/>
-                                        </g>
-                                      </svg>
-                                </button>
-                               
+                                </select>
                             </div>
                         </div>
                         <div class="product__view--mode__list product__view--search d-none d-lg-block">
-                            <form class="product__view--search__form" action="#">
+                            <form class="product__view--search__form" action="/shop" method="GET">
                                 <label>
-                                    <input class="product__view--search__input border-0" placeholder="Search by" type="text">
+                                    <input class="product__view--search__input border-0" name="search" placeholder="Search by" type="text">
                                 </label>
                                 <button class="product__view--search__btn" aria-label="shop button" type="submit">
                                     <svg class="product__view--search__btn--svg" xmlns="http://www.w3.org/2000/svg" width="22.51" height="20.443" viewBox="0 0 512 512">
@@ -313,68 +299,37 @@
                                 </button>
                             </form>
                         </div>
-                        
                     </div>
                     <p class="product__showing--count">Showing 1–9 of 21 results</p>
                 </div>
+                
                 <div class="row">
                     
-         <div class="col-xl-3 col-lg-4">
-                 <form action="/filter" method="GET">
-                        <div class="shop__sidebar--widget widget__area d-none d-lg-block">
-                            <!-- <div class="single__widget widget__bg">
-                                <h2 class="widget__title h3">Categories</h2>
-                                <ul class="widget__categories--menu">
-                                    <% for(let i = 0; i < category.length; i++) { %>
-                                        <li class="widget__categories--menu__list">
-                                            <a href="/filter?category=<%=category[i]._id%>"><%= category[i].name %></a>
-                                        </li>
-                                    <% } %>                                 
+                    <div class="col-xl-3 col-lg-4">
+                        <form action="/shop" method="GET">
+                            <div class="shop__sidebar--widget widget__area d-none d-lg-block">
+                                <div class="single__widget widget__bg">
+                                    <h2 class="widget__title h3">Categories</h2>
+                                    <ul class="widget__categories--menu">
+                                        <!-- Loop through the categories and create a list item for each category -->
+                                        <% categories.forEach(category => { %>
+                                            <li class="widget__categories--menu__list">
+                                                <label class="widget__categories--menu__label d-flex align-items-center">
+                                                    <span class="widget__categories--menu__text"><%= category.name %></span>
+                                                </label>
+                                                <input type="radio" name="category" value="<%= category._id %>" 
+                                                    <% if (selectedCategory === category._id) { %> checked <% } %> 
+                                                    style="display:none;">
+                                            </li>
+                                        <% }); %>
+                                    </ul>
                                     
-                                </ul>
-                            </div> -->
-                            
-                            <div class="single__widget price__filter widget__bg">
-                                <h2 class="widget__title h3">Filter By Price</h2>
-                                <form class="price__filter--form" action="#"> 
-                                    <div class="price__filter--form__inner mb-15 d-flex align-items-center">
-                                        <a href=""><button type="button" class="price-button">Under - $500</button></a>
-                                        <a href=""><button type="button" class="price-button">$500 - $1000</button></a>
-                                        <a href=""><button type="button" class="price-button">$1000 - $2000</button></a>
-                                        <a href=""><button type="button" class="price-button">Above - $2000</button></a>
-                                        <div class="price__divider">
-                                            <span>-</span>
-                                        </div>
-                                    </div>
-                                    <button class="price__filter--btn primary__btn" type="submit">Filter</button>
-                                </form>
-                            </div> 
-                               
-
-                            <div class="single__widget price__filter widget__bg">
-                                <h2 class="widget__title h3">Sort By</h2>
-                                <form class="price__filter--form" action="#"> 
-                                    <div class="price__filter--form__inner mb-15 d-flex align-items-center" >
-                                        <ul class="widget__categories--menu">
-                                            <li class="widget__categories--menu__list">
-                                                <a href="/filter?sort=new">New Arrivals</a>
-                                            </li>
-                                            <li class="widget__categories--menu__list">
-                                                <a href="/filter?sort=asc">A-Z</a>
-                                            </li>
-                                            <li class="widget__categories--menu__list">
-                                                <a href="/filter?sort=desc">Z-A</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <button class="price__filter--btn primary__btn" type="submit">Filter</button>
-                                </form>
-                            </div> 
-
-
-                        </div>  
-                    </form> 
+                                </div>
+                            </div>
+                        </form>
                     </div>
+                    
+                    
                 
                     <div class="col-xl-9 col-lg-8">
                         <div class="shop__product--wrapper">
@@ -394,9 +349,10 @@
                                                                      : '/uploads/default.jpg' %>" 
                                                                alt="<%= product.productName || 'Product' %>">
                                                         </a>
-                                                        <% if (product.isOnSale) { %>
+                                              
+                                                        <% if (product.effectiveOffer && product.effectiveOffer > 0) { %>
                                                           <div class="product__badge">
-                                                            <span class="product__badge--items sale">Sale</span>
+                                                            <span  class="product__badge--items sale"><%= product.effectiveOffer %>% OFF</span>
                                                           </div>
                                                         <% } %>
                                                       </div>
@@ -406,8 +362,8 @@
                                                           <a href="/ProductDetails?id=<%= product._id %>"><%= product.productName %></a>
                                                         </h3>
                                                         <div class="product__items--price">
-                                                          <span class="current__price">Rs:<%= product.salePrice || '0.00' %></span>
-                                                          <span class="old__price">Rs:<%= product.regularPrice || 'N/A' %></span>
+                                                          <span class="current__price">Rs: <%= product.salePrice || '0.00' %></span>
+                                                          <span class="old__price">Rs: <%= product.regularPrice || 'N/A' %></span>
                                                         </div>
                                                       </div>
                                                     </div>
@@ -416,6 +372,7 @@
                                               <% } else { %>
                                                 <p>No products found.</p>
                                               <% } %>
+                                              
                                               
                                        
                         
@@ -584,7 +541,7 @@
                             <li class="footer__widget--menu__list"><a class="footer__widget--menu__text" href="login.html">Login</a></li>
                             <li class="footer__widget--menu__list"><a class="footer__widget--menu__text" href="login.html">Register</a></li>
                             <li class="footer__widget--menu__list"><a class="footer__widget--menu__text" href="checkout.html">Checkout</a></li>
-                            <li class="footer__widget--menu__list"><a class="footer__widget--menu__text" href="wishlist.html">Wishlist</a></li>
+                            <li class="footer__widget--menu__list"><a class="footer__widget--menu__text" href="/wishlist">Wishlist</a></li>
                         </ul>
                     </div>
                     <div class="footer__widget">
@@ -826,52 +783,27 @@
                                                 </svg>
                                             </span>
                                         </li>
-
                                     </ul>
                                     <span class="quickview__info--review__text">(5 reviews)</span>
                                 </div>
                                 <p class="product__details--info__desc mb-15">Lorem ipsum dolor sit amet, consectetur adipisicing elit is. Deserunt totam dolores ea numquam labore! Illum magnam totam tenetur fuga quo dolor.</p>
                                 <div class="product__variant">
-                                    <div class="product__variant--list mb-10">
-                                        <fieldset class="variant__input--fieldset">
-                                            <legend class="product__variant--title mb-8">Color :</legend>
-                                            <input id="color-red1" name="color" type="radio" checked>
-                                            <label class="variant__color--value red" for="color-red1" title="Red"><img class="variant__color--value__img" src="assets/img/product/product1.png" alt="variant-color-img"></label>
-                                            <input id="color-red2" name="color" type="radio">
-                                            <label class="variant__color--value red" for="color-red2" title="Black"><img class="variant__color--value__img" src="assets/img/product/product2.png" alt="variant-color-img"></label>
-                                            <input id="color-red3" name="color" type="radio">
-                                            <label class="variant__color--value red" for="color-red3" title="Pink"><img class="variant__color--value__img" src="assets/img/product/product3.png" alt="variant-color-img"></label>
-                                            <input id="color-red4" name="color" type="radio">
-                                            <label class="variant__color--value red" for="color-red4" title="Orange"><img class="variant__color--value__img" src="assets/img/product/product4.png" alt="variant-color-img"></label>
-                                        </fieldset>
-                                    </div>
-                                    <div class="product__variant--list mb-15">
-                                        <fieldset class="variant__input--fieldset weight">
-                                            <legend class="product__variant--title mb-8">Weight :</legend>
-                                            <input id="weight1" name="weight" type="radio" checked>
-                                            <label class="variant__size--value red" for="weight1">5 kg</label>
-                                            <input id="weight2" name="weight" type="radio">
-                                            <label class="variant__size--value red" for="weight2">3 kg</label>
-                                            <input id="weight3" name="weight" type="radio">
-                                            <label class="variant__size--value red" for="weight3">2 kg</label>
-                                        </fieldset>
-                                    </div>
-                                    <div class="quickview__variant--list quantity d-flex align-items-center mb-15">
-                                        <div class="quantity__box">
-                                            <button type="button" class="quantity__value quickview__value--quantity decrease" aria-label="quantity value" value="Decrease Value">-</button>
-                                            <label>
-                                                <input type="number" class="quantity__number quickview__value--number" value="1" data-counter/>
-                                            </label>
-                                            <button type="button" class="quantity__value quickview__value--quantity increase" aria-label="quantity value" value="Increase Value">+</button>
-                                        </div>
-                                        <button class="primary__btn quickview__cart--btn" type="submit">Add To Cart</button>  
-                                    </div>
+                                    
+                                    
                                     <div class="quickview__variant--list variant__wishlist mb-15">
-                                        <a class="variant__wishlist--icon" href="wishlist.html" title="Add to wishlist">
-                                            <svg class="quickview__variant--wishlist__svg" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 512 512"><path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
-                                            Add to Wishlist
+                                        <a 
+                                          class="variant__wishlist--icon" 
+                                          href="javascript:void(0);" 
+                                          title="Add to wishlist" 
+                                          onclick="addToWishlist('PRODUCT_ID_HERE')"
+                                        > 
+                                          <svg class="quickview__variant--wishlist__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                            <path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+                                          </svg>
+                                          Add to Wishlist
                                         </a>
-                                    </div>
+                                      </div>
+                                      
                                 </div>
                                 <div class="quickview__social d-flex align-items-center">
                                     <label class="quickview__social--title">Social Share:</label>
@@ -955,58 +887,55 @@ function applySorting() {
 
 
 
-const searchInput = document.querySelector('.product__view--search__input');
 
-// Add event listener to trigger search on input change
-searchInput.addEventListener('input', function() {
-    const searchQuery = searchInput.value.trim(); // Get the search query
 
-    if (searchQuery.length >= 10) { // Optional: Only trigger search if the query is at least 3 characters
-        fetchSearchResults(searchQuery); // Fetch search results from server
-    } else {
-        clearSearchResults(); // Clear results if search query is empty
-    }
-});
 
-// Function to fetch search results from the server
-function fetchSearchResults(query) {
-    fetch(`/search?query=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-            displaySearchResults(data.products); // Display the search results
-        })
-        .catch(error => {
-            console.error('Error:', error); // Handle any errors
+
+
+
+
+function addToWishlist(productId) {
+  $.ajax({
+    url: '/addToWishlist',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', 
+    },
+    data: JSON.stringify({ productId }), // Use `data` to send the JSON payload
+    contentType: 'application/json',
+    success: function(response) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Wishlist!',
+        text: 'The product has been added to your wishlist.',
+        confirmButtonText: 'OK'
+      });
+    },
+    error: function(error) {
+      // Check if the error is due to unauthorized access (status 401)
+      if (error.status === 401) {
+        // Redirect to login page if not logged in
+        Swal.fire({
+          icon: 'error',
+          title: 'Unauthorized',
+          text: 'Please log in to add products to your wishlist.',
+          confirmButtonText: 'Go to Login',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Redirect to login page
+            window.location.href = '/login'; // Change this URL to your actual login page URL
+          }
         });
-}
-
-// Function to display search results in the DOM
-function displaySearchResults(products) {
-    const resultsContainer = document.querySelector('.product-results');
-    resultsContainer.innerHTML = ''; // Clear any previous results
-
-    if (products.length === 0) {
-        resultsContainer.innerHTML = '<p>No products found.</p>';
-    } else {
-        products.forEach(product => {
-            resultsContainer.innerHTML += `
-                <div class="product-item">
-                    <img src="${product.productImage[0]}" alt="${product.productName}">
-                    <h3>${product.productName}</h3>
-                    <p>${product.category.name}</p>
-                    <p>$${product.price}</p>
-                </div>`;
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to add the product to the wishlist. Please try again.',
         });
+      }
     }
+  });
 }
-
-// Function to clear search results if the query is empty
-function clearSearchResults() {
-    const resultsContainer = document.querySelector('.product-results');
-    resultsContainer.innerHTML = ''; // Clear results
-}
-
-
 
 
 

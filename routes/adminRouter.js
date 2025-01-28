@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin/adminController');
-const {userAuth,adminAuth}=require('../middlewares/auth')
+const {adminAuth}=require('../middlewares/auth')
 const customerCountroller=require('../controllers/admin/customerCountroller')
 const categoryController=require('../controllers/admin/categoryController')
 const productController=require('../controllers/admin/productController')
 const  upload=require('../utils/multer')
 const OrderController=require('../controllers/admin/oderController')
+const  couponController=require('../controllers/admin/couponController');
+const { route } = require('./userRouter');
 
 
 
@@ -32,9 +34,9 @@ router.post('/editCategory/:id', adminAuth, upload.single('image'), categoryCont
 
 
 
-router.get("/addProducts", productController.getProductAddPage);
- router.post("/addProducts",  upload.array('productImages',3),productController.addProducts);
-router.get('/products',productController.getAllProducts);
+router.get("/addProducts",adminAuth, productController.getProductAddPage);
+ router.post("/addProducts",adminAuth,  upload.array('productImages',3),productController.addProducts);
+router.get('/products', adminAuth,productController.getAllProducts);
 router.get('/unblockProduct',adminAuth,productController.unblockProduct);
 router.get('/blockProduct',productController.blockProduct)
 router.get('/editProduct',productController.geteditProduct)//
@@ -45,13 +47,33 @@ router.post('/editProduct/:id',upload.array('images',3), productController.editP
  router.post('/product-variants',productController.handleProductvariants);
 
 
-
-
  router.get('/orders', adminAuth,OrderController.getAllOrders);
  router.get('/orders/:orderId', adminAuth,OrderController.getOrderDetails);
  router.post('/orders/update-status', adminAuth,OrderController.updateOrderStatus);
 
 
+router.post('/addCategoryOffer',adminAuth,categoryController.addCategoryOffer)
+router.post('/removeCategoryOffer',adminAuth,categoryController.removeCategoryOffer)
 
+
+router.post('/addProductOffer',adminAuth,productController.addProductOffer)
+router.post('/removeProductOffer',adminAuth,productController.removeProductOffer)
+
+
+
+router.get('/coupon',adminAuth,couponController.loadCoupon)
+router.post('/createCoupon',adminAuth,couponController.createCoupon)
+router.get('/editCoupon',adminAuth,couponController.editCoupon)
+router.post('/updatecoupon',adminAuth,couponController.updatecoupon)
+router.post('/deletecoupon', adminAuth, couponController.deletecoupon);
+router.put('/orders/:orderId/approve-return',adminAuth,OrderController.approveReturn);
+router.get('/reports',adminAuth,OrderController.loadReport)
+router.get('/download-pdf',adminAuth,OrderController.loadPdf)
+router.get('/download-excel',adminAuth,OrderController.loadExcel);
+
+
+
+   
+ 
 module.exports = router;
 

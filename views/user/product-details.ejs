@@ -359,50 +359,17 @@ select {
 
                                 <h2 class="product__details--info__title mb-15"><%=product.productName%></h2>
                                 <div class="product__details--info__price mb-10">
-                                    <span class="current__price">Rs:<%=product.salePrice%></span>
-                                    <!-- <span class="price__divided"></span> -->
+                                    <!-- Display sale price -->
+                                    <span class="current__price" style="font-size: 2.5rem; color: rgb(14, 17, 14);">Rs:<%= salePrice %></span>
+                                    
+                                    <!-- Display regular price if available -->
                                     <span class="old__price">Rs:<%= product.regularPrice || 'N/A' %></span>
                                 </div>
-                                <div class="product__details--info__rating d-flex align-items-center mb-15">
-                                    <ul class="rating d-flex justify-content-center">
-                                        <li class="rating__list">
-                                            <span class="rating__list--icon">
-                                                <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
-                                                <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
-                                                </svg>
-                                            </span>
-                                        </li>
-                                        <li class="rating__list">
-                                            <span class="rating__list--icon">
-                                                <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
-                                                <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
-                                                </svg>
-                                            </span>
-                                        </li>
-                                        <li class="rating__list">
-                                            <span class="rating__list--icon">
-                                                <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
-                                                <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
-                                                </svg>
-                                            </span>
-                                        </li>
-                                        <li class="rating__list">
-                                            <span class="rating__list--icon">
-                                                <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
-                                                <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
-                                                </svg>
-                                            </span>
-                                        </li>
-                                        <li class="rating__list">
-                                            <span class="rating__list--icon">
-                                                <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
-                                                <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
-                                                </svg>
-                                            </span>
-                                        </li>
-                                    </ul>
-                                    <span class="product__items--rating__count--number">(24)</span>
+                                <div class="product__details--info__offer mb-10">
+                                    <!-- Display the offer percentage -->
+                                    <span class="offer__percentage" style="font-size: 1.5rem; color: green;"><%= offerPercentage %></span>
                                 </div>
+                                
                                 <p class="product__details--info__desc mb-15"><%=product.description%></p>
                                 <div class="product__variant">
                                     <div class="product__details--info__meta">
@@ -478,11 +445,18 @@ select {
                                       </div>
 
                                       <div class="product__variant--list mb-15">
-                                        <a class="variant__wishlist--icon mb-15" href="wishlist.html" title="Add to wishlist">
-                                            <svg class="quickview__variant--wishlist__svg" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 512 512"><path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
-                                            Add to Wishlist
+                                        <a 
+                                          class="variant__wishlist--icon mb-15" 
+                                          href="javascript:void(0);" 
+                                          title="Add to wishlist" 
+                                          onclick="addToWishlist('<%= product._id %>')">
+                                          <svg class="quickview__variant--wishlist__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                            <path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+                                          </svg>
+                                          Add to Wishlist
                                         </a>
-                                    </div>
+                                      </div>
+                                      
                                     
                                 </div>
                                 <div class="quickview__social d-flex align-items-center mb-15">
@@ -770,6 +744,39 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial check for size selection and stock availability
   handleSizeSelection();
 });
+
+
+
+
+function addToWishlist(productId) {
+    console.log(productId);
+    
+  $.ajax({
+    url: '/addToWishlist',
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Assuming token is in localStorage
+    },
+    data: JSON.stringify({ productId }), // Send productId in the request body
+    contentType: 'application/json',
+    success: function(response) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Wishlist!',
+        text: 'The product has been added to your wishlist.',
+        confirmButtonText: 'OK'
+      });
+    },
+    error: function(error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to add the product to the wishlist. Please try again.',
+      });
+    }
+  });
+}
+
 
 
 

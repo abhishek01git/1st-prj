@@ -127,16 +127,7 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="cart__summary border-radius-10">
-                                    <div class="coupon__code mb-30">
-                                        <h3 class="coupon__code--title">Coupon</h3>
-                                        <p class="coupon__code--desc">Enter your coupon code if you have one.</p>
-                                        <div class="coupon__code--field d-flex">
-                                            <label>
-                                                <input class="coupon__code--field__input border-radius-5" placeholder="Coupon code" type="text">
-                                            </label>
-                                            <button class="coupon__code--field__btn primary__btn" type="submit">Apply Coupon</button>
-                                        </div>
-                                    </div>
+                                    
                                    
                                     <div class="cart__summary--total mb-20">
                                         <table class="cart__summary--total__table">
@@ -266,7 +257,7 @@ async function updateQuantity(event, button, action, maxQuantity, index) {
 
     try {
         const response = await fetch(`/cart/update/${productId}`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-// Define the Review Schema
+
 const ReviewSchema = new Schema(
   {
     product: {

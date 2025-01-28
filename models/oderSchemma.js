@@ -8,7 +8,7 @@ const orderSchema = new Schema({
     type: String,
     unique: true,
     required: true,
-    default: uuidv4 // Generates a unique UUID v4 string
+    default: uuidv4 
   },
   userId: {
     type: Schema.Types.ObjectId,
@@ -53,6 +53,11 @@ const orderSchema = new Schema({
     type: Number, 
     required: true 
   },
+  razorpayOrderId: {
+    type: String,
+    default: null, 
+  },
+  
 
   items: [{
     productId: {
@@ -84,6 +89,28 @@ const orderSchema = new Schema({
       type:String,
       enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'], 
       default: 'Pending' 
+    },
+    cancelReason: {
+      type: String,
+      validate: {
+        validator: function(value) {
+          
+          if (this.cancelStatus === 'Cancelled' && !value) {
+            return false; 
+          }
+          return true;
+        },
+        message: 'Cancel reason is required when the item is canceled'
+      }
+    },
+    returnStatus: {
+      type: String, 
+      enum: ["Not Requested", "Requested", "Approved", "Rejected"], 
+      default: "Not Requested" 
+    },
+    returnReason: {
+      type: String, 
+      default: ""
     }
   }],
   paymentStatus: { 
@@ -99,6 +126,14 @@ const orderSchema = new Schema({
   status: { 
     type: String, 
     default: 'Pending' 
+  },
+  coupon:{
+    code:{type:String},
+    discountAmount:{type:Number}
+  },
+  orderCancelReason: {
+    type: String,
+    required: function() { return this.fulfillmentStatus === 'Cancelled'; },
   },    // Status of the order
   createdAt: { 
     type: Date, 
@@ -108,6 +143,17 @@ const orderSchema = new Schema({
     type: Date, 
     default: Date.now 
   },
+  // returnstatus: { 
+  //   type: String, 
+  //   enum: ["Not Requested", "Requested", "Approved", "Rejected"], 
+  //   default: "Not Requested" 
+  // },
+  // returnRequestDate: { 
+  //   type: Date 
+  // },
+  // returnReason: { 
+  //   type: String 
+  // }
 
 }, { timestamps: true });
 

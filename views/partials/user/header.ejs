@@ -118,7 +118,7 @@
 <body>
 
     <!-- Start preloader -->
-    <div id="preloader">
+    <!-- <div id="preloader">
         <div id="ctn-preloader" class="ctn-preloader">
             <div class="animation-preloader">
                 <div class="spinner"></div>
@@ -155,7 +155,7 @@
             <div class="loader-section section-left"></div>
             <div class="loader-section section-right"></div>
         </div>
-    </div>
+    </div> -->
     <!-- End preloader -->
 	
     <!-- Start header area -->
@@ -166,8 +166,8 @@
                     <div class="header__shipping">
                         <ul class="header__shipping--wrapper d-flex">
                             <li class="header__shipping--text text-white">Welcome to Netmark online Store</li>
-                            <li class="header__shipping--text text-white d-sm-2-none"><img class="header__shipping--text__icon" src="assets/img/icon/bus.png" alt="bus-icon"> Track Your Order</li>
-                            <li class="header__shipping--text text-white d-sm-2-none"><img class="header__shipping--text__icon" src="assets/img/icon/email.png" alt="email-icon"> <a class="header__shipping--text__link" href="mailto:demo@gmail.com">demo@gmail.com</a></li>
+                            <li class="header__shipping--text text-white d-sm-2-none"><img class="header__shipping--text__icon" src="/assets/img/icon/bus.png" alt="bus-icon"> Track Your Order</li>
+                            <li class="header__shipping--text text-white d-sm-2-none"><img class="header__shipping--text__icon" src="/assets/img/icon/email.png" alt="email-icon"> <a class="header__shipping--text__link" href="mailto:demo@gmail.com">demo@gmail.com</a></li>
                         </ul>
                     </div>
                     <div class="language__currency d-none d-lg-block">
@@ -175,7 +175,7 @@
                             <!-- Language Dropdown -->
                             <li class="language__currency--list">
                                 <a class="language__switcher text-white" href="#">
-                                    <img class="language__switcher--icon__img" src="assets/img/icon/language-icon.png" alt="language">
+                                    <img class="language__switcher--icon__img" src="/assets/img/icon/language-icon.png" alt="language">
                                     <span>English</span> 
                                     <svg xmlns="http://www.w3.org/2000/svg" width="11.797" height="9.05" viewBox="0 0 9.797 6.05">
                                         <path  d="M14.646,8.59,10.9,12.329,7.151,8.59,6,9.741l4.9,4.9,4.9-4.9Z" transform="translate(-6 -8.59)" fill="currentColor" opacity="0.7"/>
@@ -212,7 +212,7 @@
                         </a>
                     </div>
                     <div class="main__logo">
-                        <h1 class="main__logo--title"><a class="main__logo--link" href="index.html"><img class="main__logo--img" src="assets/img/logo/nav-log.ORG.png" alt="logo-img"></a></h1>
+                        <h1 class="main__logo--title"><a class="main__logo--link" href="index.html"><img class="main__logo--img" src="/assets/img/logo/nav-log.ORG.png" alt="logo-img"></a></h1>
                     </div>
                     <div class="header__search--widget header__sticky--none d-none d-lg-block">
                         <form class="d-flex header__search--form" action="#">
@@ -266,13 +266,16 @@
     
                             </li>
                             
-                            
                             <li class="header__account--items d-none d-lg-block">
-                                <a class="header__account--btn" href="wishlist.html">
-                                    <svg  xmlns="http://www.w3.org/2000/svg" width="28.51" height="23.443" viewBox="0 0 512 512"><path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></path></svg>
+                                <a class="header__account--btn" href="/wishlist">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="28.51" height="23.443" viewBox="0 0 512 512">
+                                        <path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></path>
+                                    </svg>
                                     <span class="header__account--btn__text"> Wish List</span>
-                                   
+                                    <span id="wishlist-count" class="wishlist-count">0</span> <!-- This will show the count -->
                                 </a>
+                            </li>
+                            
                             </li>
                             <li class="header__account--items">
                                 <a class="header__account--btn minicart__open--btn" href="/cart" data-offcanvas>
@@ -295,7 +298,7 @@
                         <nav class="header__menu--navigation">
                             <ul class="d-flex">
                                 <li class="header__menu--items style2">
-                                    <a class="header__menu--link" href="index.html">Home</a>
+                                    <a class="header__menu--link" href="/">Home</a>
                                     
                                 </li>
                                 <li class="header__menu--items mega__menu--items style2">
@@ -341,7 +344,7 @@
                                 </a>
                             </li>
                             <li class="header__account--items header__account2--items">
-                                <a class="header__account--btn" href="my-account.html">
+                                <a class="header__account--btn" href="/profile">
                                     <svg xmlns="http://www.w3.org/2000/svg"  width="26.51" height="23.443" viewBox="0 0 512 512"><path d="M344 144c-3.92 52.87-44 96-88 96s-84.15-43.12-88-96c-4-55 35-96 88-96s92 42 88 96z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="M256 304c-87 0-175.3 48-191.64 138.6C62.39 453.52 68.57 464 80 464h352c11.44 0 17.62-10.48 15.65-21.4C431.3 352 343 304 256 304z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/></svg>
                                     <span class="visually-hidden">My Account</span>
                                 </a>
@@ -353,7 +356,7 @@
                                 </a>
                             </li>
                             <li class="header__account--items header__account2--items">
-                                <a class="header__account--btn minicart__open--btn" href="javascript:void(0)" data-offcanvas>
+                                <a class="header__account--btn minicart__open--btn" href="/cart" data-offcanvas>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="26.51" height="23.443" viewBox="0 0 14.706 13.534">
                                         <g  transform="translate(0 0)">
                                           <g >
@@ -418,7 +421,7 @@
                             </ul>
                         </nav>
                     </div>
-                    <p class="header__discount--text"><img class="header__discount--icon__img" src="assets/img/icon/lamp.png" alt="lamp-img"> Special up to 60% Off all item</p>
+                    <p class="header__discount--text"><img class="header__discount--icon__img" src="/assets/img/icon/lamp.png" alt="lamp-img"> Special up to 60% Off all item</p>
                 </div>
             </div>
         </div>
@@ -428,14 +431,14 @@
             <div class="offcanvas__inner">
                 <div class="offcanvas__logo">
                     <a class="offcanvas__logo_link" href="index.html">
-                        <img src="assets/img/logo/nav-log.png" alt="Grocee Logo" width="158" height="36">
+                        <img src="/assets/img/logo/nav-log.png" alt="Grocee Logo" width="158" height="36">
                     </a>
                     <button class="offcanvas__close--btn" data-offcanvas>close</button>
                 </div>
                 <nav class="offcanvas__menu">
                     <ul class="offcanvas__menu_ul">
                         <li class="offcanvas__menu_li">
-                            <a class="offcanvas__menu_item" href="index.html">Home</a>
+                            <a class="offcanvas__menu_item" href="/">Home</a>
                             <ul class="offcanvas__sub_menu">
                                 <li class="offcanvas__sub_menu_li"><a href="index.html" class="offcanvas__sub_menu_item">Home One</a></li>
                                 <li class="offcanvas__sub_menu_li"><a href="index-2.html" class="offcanvas__sub_menu_item">Home Two</a></li>
@@ -515,7 +518,7 @@
                         <ul class="d-flex align-items-center">
                             <li class="language__currency--list">
                                 <a class="offcanvas__language--switcher" href="#">
-                                    <img class="language__switcher--icon__img" src="assets/img/icon/language-icon.png" alt="currency">
+                                    <img class="language__switcher--icon__img" src="/assets/img/icon/language-icon.png" alt="currency">
                                     <span>English</span> 
                                     <svg xmlns="http://www.w3.org/2000/svg" width="11.797" height="9.05" viewBox="0 0 9.797 6.05">
                                         <path  d="M14.646,8.59,10.9,12.329,7.151,8.59,6,9.741l4.9,4.9,4.9-4.9Z" transform="translate(-6 -8.59)" fill="currentColor" opacity="0.7"/>
@@ -531,7 +534,7 @@
                             </li>
                             <li class="language__currency--list">
                                 <a class="offcanvas__account--currency__menu" href="#">
-                                    <img src="assets/img/icon/usd-icon.png" alt="currency">
+                                    <img src="/assets/img/icon/usd-icon.png" alt="currency">
                                     <span>$ US Dollar</span> 
                                     <svg xmlns="http://www.w3.org/2000/svg" width="11.797" height="9.05" viewBox="0 0 9.797 6.05">
                                         <path  d="M14.646,8.59,10.9,12.329,7.151,8.59,6,9.741l4.9,4.9,4.9-4.9Z" transform="translate(-6 -8.59)" fill="currentColor" opacity="0.7"/>
@@ -628,3 +631,24 @@
 
     </header>
     <!-- End header area -->
+<script>
+    $(document).ready(function() {
+    // Assuming you have a route that returns the user's wishlist count
+    $.ajax({
+        url: '/wishlist/count', // This is a placeholder route
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // If you're using token-based auth
+        },
+        success: function(response) {
+            if (response.success) {
+                $('#wishlist-count').text(response.count); // Update the wishlist count
+            }
+        },
+        error: function() {
+            console.error('Error fetching wishlist count');
+        }
+    });
+});
+
+</script>
